@@ -1,5 +1,7 @@
 package net.sskikne.Facetrack;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -9,14 +11,20 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import boofcv.abst.feature.detect.interest.ConfigFastHessian;
+import boofcv.abst.feature.tracker.PointTrack;
+import boofcv.abst.feature.tracker.PointTracker;
 import boofcv.alg.filter.blur.BlurImageOps;
 import boofcv.alg.filter.derivative.GradientSobel;
 import boofcv.core.image.ConvertBufferedImage;
 import boofcv.core.image.border.FactoryImageBorderAlgs;
+import boofcv.factory.feature.tracker.FactoryPointTracker;
+import boofcv.gui.feature.VisualizeFeatures;
 import boofcv.gui.image.ImagePanel;
 import boofcv.gui.image.ShowImages;
 import boofcv.gui.image.VisualizeImageData;
 import boofcv.struct.image.ImageSInt16;
+import boofcv.struct.image.ImageSingleBand;
 import boofcv.struct.image.ImageUInt8;
 
 import au.edu.jcu.v4l4j.FrameGrabber;
@@ -40,14 +48,19 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
         private VideoDevice     videoDevice;
         private FrameGrabber    frameGrabber;
 
-        private JLabel          label;
+        private static JLabel          label;
         private JFrame          frame;
         
         private static ImagePanel gauss;
-
+        static PointTracker<ImageUInt8> tracker;
+        static Class<ImageUInt8> imageType = ImageUInt8.class ;
 
         public static void main(String args[]){
-
+        	ConfigFastHessian configDetector = new ConfigFastHessian();
+    		configDetector.maxFeaturesPerScale = 200;
+    		configDetector.extractRadius = 3;
+    		configDetector.initialSampleSize = 2;
+    		tracker = FactoryPointTracker.dda_FH_SURF_Fast(configDetector, null, null, imageType);
                 SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
@@ -169,18 +182,34 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
         	ConvertBufferedImage.convertFrom(bufferedImage, test);
             
     		ImageUInt8 blurred = new ImageUInt8(test.width,test.height);
-    		ImageSInt16 derivX = new ImageSInt16(test.width,test.height);
-    		ImageSInt16 derivY = new ImageSInt16(test.width,test.height);
+//    		ImageSInt16 derivX = new ImageSInt16(test.width,test.height);
+//    		ImageSInt16 derivY = new ImageSInt16(test.width,test.height);
      
     		// Gaussian blur: Convolve a Gaussian kernel
-    		BlurImageOps.gaussian(test,blurred,-1,4,null);
-     
+//    		BlurImageOps.gaussian(test,blurred,-1,4,null);
+    		tracker.process(test);
+			if( tracker.getActiveTracks(null).size() < 10 ){
+				tracker.spawnTracks();
+			}
+//			
+ 
     		// Calculate image's derivative
-    		GradientSobel.process(blurred, derivX, derivY, FactoryImageBorderAlgs.extend(test));
-     
+//    		GradientSobel.process(blurred, derivX, derivY, FactoryImageBorderAlgs.extend(test));
     		// display the results
-    		BufferedImage outputImage = VisualizeImageData.colorizeSign(derivX,null,-1);
-    		gauss.setBufferedImageSafe(bufferedImage);
-//    		ShowImages.showWindow(outputImage,"Procedural Fixed Type");
+//    		BufferedImage outputImage = VisualizeImageData.colorizeSign(derivX,null,-1);
+    		Graphics2D g2 = bufferedImage.createGraphics();
+    		for( PointTrack p : tracker.getActiveTracks(null) ) {
+    			VisualizeFeatures.drawPoint(g2, (int)p.x, (int)p.y, Color.blue);
+    		}
+     
+    		// draw tracks which have just been spawned green
+    		for( PointTrack p : tracker.getNewTracks(null) ) {
+    			VisualizeFeatures.drawPoint(g2, (int)p.x, (int)p.y, Color.green);
+    		}
+
+    		label.getGraphics().drawImage(bufferedImage , 0, 0, width, height, null);
+//    		ShowImages.showWindow(test,"Procedural Fixed Type");
     	}
 }
+
+
