@@ -30,6 +30,8 @@ import com.bulletphysics.collision.dispatch.CollisionDispatcher;
 import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.CylinderShape;
+import com.bulletphysics.collision.shapes.SphereShape;
 import com.bulletphysics.collision.shapes.StaticPlaneShape;
 import com.bulletphysics.demos.opengl.DemoApplication;
 import com.bulletphysics.demos.opengl.GLDebugDrawer;
@@ -117,7 +119,7 @@ public class BasicDemo extends DemoApplication {
 		// collision configuration contains default setup for memory, collision setup
 		collisionConfiguration = new DefaultCollisionConfiguration();
 
-		// use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+		// use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
 		dispatcher = new CollisionDispatcher(collisionConfiguration);
 
 		broadphase = new DbvtBroadphase();
@@ -131,20 +133,46 @@ public class BasicDemo extends DemoApplication {
 		
 		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 
-		dynamicsWorld.setGravity(new Vector3f(0f, -10f, 0f));
+		dynamicsWorld.setGravity(new Vector3f(0f, 0f, 0f));
 
 		// create a few basic rigid bodies
-		CollisionShape groundShape = new BoxShape(new Vector3f(50f, 50f, 50f));
-		//CollisionShape groundShape = new StaticPlaneShape(new Vector3f(0, 1, 0), 50);
+		//CollisionShape groundShape = new BoxShape(new Vector3f(50f, 50f, 50f));
+		CollisionShape groundShape = new BoxShape(new Vector3f(50f, 1f, 50f));
+		CollisionShape backWall = new BoxShape(new Vector3f(50f,50f,1f));
+		CollisionShape sideWall = new BoxShape(new Vector3f(1f,50f,50f));
+		CollisionShape cameraWall = new StaticPlaneShape(new Vector3f(0, 0, 1), 50);
 
 		collisionShapes.add(groundShape);
+		collisionShapes.add(backWall);
+		collisionShapes.add(sideWall);
+		collisionShapes.add(cameraWall);
 
+		{
 		Transform groundTransform = new Transform();
 		groundTransform.setIdentity();
-		groundTransform.origin.set(0, -56, 0);
+		//floor
+		groundTransform.origin.set(0, -50, 0);
+		dynamicsWorld.addRigidBody(localCreateRigidBody(0f, groundTransform, groundShape));
+		//ceiling
+		groundTransform.origin.set(0,50,0);
+		dynamicsWorld.addRigidBody(localCreateRigidBody(0f, groundTransform, groundShape));
+		//back wall
+		groundTransform.origin.set(0,0,50);
+		dynamicsWorld.addRigidBody(localCreateRigidBody(0f, groundTransform, backWall));
+		//camera wall
+		//groundTransform.origin.set(0,0,-50);
+		//dynamicsWorld.addRigidBody(localCreateRigidBody(0f, groundTransform, cameraWall));
+		//right wall
+		groundTransform.origin.set(50,0,0);
+		dynamicsWorld.addRigidBody(localCreateRigidBody(0f, groundTransform, sideWall));
+		//left wall
+		groundTransform.origin.set(-50,0,0);
+		dynamicsWorld.addRigidBody(localCreateRigidBody(0f, groundTransform, sideWall));
+		}
+
 
 		// We can also use DemoApplication::localCreateRigidBody, but for clarity it is provided here:
-		{
+		/*{
 			float mass = 0f;
 
 			// rigidbody is dynamic if and only if mass is non zero, otherwise static
@@ -162,14 +190,15 @@ public class BasicDemo extends DemoApplication {
 
 			// add the body to the dynamics world
 			dynamicsWorld.addRigidBody(body);
-		}
+		}*/
+		
 
 		{
 			// create a few dynamic rigidbodies
 			// Re-using the same collision is better for memory usage and performance
 
-			CollisionShape colShape = new BoxShape(new Vector3f(1, 1, 1));
-			//CollisionShape colShape = new SphereShape(1f);
+			//CollisionShape colShape = new BoxShape(new Vector3f(1, 1, 1));
+			CollisionShape colShape = new SphereShape(1f);
 			collisionShapes.add(colShape);
 
 			// Create Dynamic Objects
@@ -205,7 +234,7 @@ public class BasicDemo extends DemoApplication {
 						body.setActivationState(RigidBody.ISLAND_SLEEPING);
 
 						dynamicsWorld.addRigidBody(body);
-						body.setActivationState(RigidBody.ISLAND_SLEEPING);
+						//body.setActivationState(RigidBody.ISLAND_SLEEPING);
 					}
 				}
 			}
