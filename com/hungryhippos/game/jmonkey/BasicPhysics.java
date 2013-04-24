@@ -14,7 +14,7 @@ import com.jme3.scene.shape.Sphere;
  
 /** Sample 4 - how to trigger repeating actions from the main update loop.
  * In this example, we make the player character rotate. */
-public class HelloLoop extends SimpleApplication {
+public class BasicPhysics extends SimpleApplication {
 	private BulletAppState bulletAppState;
 	private RigidBodyControl sphere1;
 	private RigidBodyControl sphere2;
@@ -22,7 +22,7 @@ public class HelloLoop extends SimpleApplication {
 	private RigidBodyControl wallRBC;
  
     public static void main(String[] args){
-        HelloLoop app = new HelloLoop();
+        BasicPhysics app = new BasicPhysics();
         app.start();
     }
  
