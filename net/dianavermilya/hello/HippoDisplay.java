@@ -1,4 +1,4 @@
-package hungryHungryHippos.net.dianavermilya.hello;
+package net.dianavermilya.hello;
  
 import java.util.ArrayList;
 import java.util.Random;
@@ -60,6 +60,8 @@ public class HippoDisplay extends SimpleApplication {
 	    /** Set up Physics Game */
 	    bulletAppState = new BulletAppState();
 	    stateManager.attach(bulletAppState);
+	    
+	    bulletAppState.getPhysicsSpace().setGravity(Vector3f.ZERO);
 	 
 	    /** Configure cam to look at scene */
 	    cam.setLocation(new Vector3f(0, 4f, 6f));
