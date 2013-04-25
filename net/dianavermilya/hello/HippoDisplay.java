@@ -1,4 +1,4 @@
-package net.dianavermilya.hello;
+package hungryHungryHippos.net.dianavermilya.hello;
  
 import java.util.ArrayList;
 import java.util.Random;
@@ -7,6 +7,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.light.AmbientLight;
+import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
@@ -176,12 +177,19 @@ public void initWalls() {
     ball_phy.setLinearVelocity(vel_vect);
   }
    public void initLighting(){
+	   
+	    DirectionalLight sun = new DirectionalLight();
+	    sun.setDirection(new Vector3f(0,0,0).normalizeLocal());
+	    sun.setColor(ColorRGBA.White);
+	    rootNode.addLight(sun);
+	    /*   
+	   
 	   AmbientLight al = new AmbientLight();
-	   al.setColor(ColorRGBA.White.mult(2f));
+	   al.setColor(ColorRGBA.White.mult(0.25f));
 	   rootNode.addLight(al);
 	   
 	   
-	   /*
+	
 	   PointLight lamp_light = new PointLight();
 	   lamp_light.setColor(ColorRGBA.White);
 	   lamp_light.setRadius(100f);

@@ -1,4 +1,4 @@
-package net.dianavermilya.hello;
+package hungryHungryHippos.net.dianavermilya.hello;
  
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.AmbientLight;
@@ -22,12 +22,15 @@ public class HelloLoop extends SimpleApplication {
     @Override
     public void simpleInitApp() {
  	   AmbientLight al = new AmbientLight();
- 	   al.setColor(ColorRGBA.White.mult(2f));
+ 	   al.setColor(ColorRGBA.White.mult(0.5f));
  	   rootNode.addLight(al);
  
         Box b = new Box(Vector3f.ZERO, 1, 1, 1);
         player = new Geometry("blue cube", b);
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        mat.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Terrain/Pond/Pond.jpg"));
+        mat.setTexture("NormalMap", assetManager.loadTexture("Textures/Terrain/Pond/Pond_normal.png"));
+        
 	    mat.setBoolean("UseMaterialColors",true);  // Set some parameters, e.g. blue.
     	mat.setColor("Ambient", ColorRGBA.Blue);   // ... color of this object
     	mat.setColor("Diffuse", ColorRGBA.Blue);   // ... color of light being reflected
