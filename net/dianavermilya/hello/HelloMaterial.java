@@ -1,4 +1,4 @@
-package hungryHungryHippos.net.dianavermilya.hello;
+package net.dianavermilya.hello;
 
 
 import com.jme3.app.SimpleApplication;

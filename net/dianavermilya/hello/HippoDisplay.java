@@ -1,4 +1,4 @@
-package hungryHungryHippos.net.dianavermilya.hello;
+package net.dianavermilya.hello;
  
 import java.util.ArrayList;
 import java.util.Random;
@@ -45,8 +45,8 @@ public class HippoDisplay extends SimpleApplication {
 	  
 	 
 	/** dimensions used for transparent walls */
-	private static final float wallSide = 3f;
-	private static final float wallThickness = .1f;
+	private static final float wallSide = 5f;
+	private static final float wallThickness = .2f;
   
 
  
@@ -65,8 +65,8 @@ public class HippoDisplay extends SimpleApplication {
 	    bulletAppState.getPhysicsSpace().setGravity(Vector3f.ZERO);
 	 
 	    /** Configure cam to look at scene */
-	    cam.setLocation(new Vector3f(0, 4f, 6f));
-	    cam.lookAt(new Vector3f(2, 2, 0), Vector3f.UNIT_Y);
+	    cam.setLocation(new Vector3f(0, 2*wallSide, 0));
+	    cam.lookAt(new Vector3f(0, 0, 0), Vector3f.UNIT_Y);
 	    
 	    /** Initialize the scene, materials, and physics space */
 	    initMaterials();
@@ -104,22 +104,22 @@ public void initWalls() {
     Box side = new Box(Vector3f.ZERO, wallThickness, wallSide, wallSide);
     Box level = new Box(Vector3f.ZERO, wallSide, wallThickness, wallSide); 
 
-    Vector3f front_loc = new Vector3f(0, 0, 3);
+    Vector3f front_loc = new Vector3f(0, 0, wallSide);
     makeWall(front_loc, facing);
 
-    Vector3f back_loc = new Vector3f(0, 0, -3);
+    Vector3f back_loc = new Vector3f(0, 0, -1*wallSide);
     makeWall(back_loc, facing);
 
-    Vector3f left_loc = new Vector3f(-3, 0, 0);
+    Vector3f left_loc = new Vector3f(-1*wallSide, 0, 0);
     makeWall(left_loc, side);    
     
-    Vector3f right_loc = new Vector3f(3, -0, 0);
+    Vector3f right_loc = new Vector3f(wallSide, -0, 0);
     makeWall(right_loc, side); 
 
-    Vector3f top_loc = new Vector3f(0,3,0);
+    Vector3f top_loc = new Vector3f(0,wallSide,0);
     makeWall(top_loc, level);    
 
-    Vector3f bottom_loc = new Vector3f(0,-3,0);
+    Vector3f bottom_loc = new Vector3f(0,-1*wallSide,0);
     makeWall(bottom_loc, level);  
   }
  
@@ -137,6 +137,8 @@ public void initWalls() {
     /** Add physical brick to physics space. */
     wall_geo.addControl(wall_phy);
     bulletAppState.getPhysicsSpace().add(wall_phy);
+    wall_phy.setRestitution(1f);
+    wall_phy.setFriction(0f);
   }
   
   
@@ -149,7 +151,7 @@ public void initWalls() {
 	  materials.add(green_ball_mat);
 	  for (int i=0;i<3;i++){
 		  for (int j=0;j<3;j++){		  
-			  for (int k=0;k<4;k++){
+			  for (int k=0;k<3;k++){
 				  Vector3f vel = new Vector3f(i, j, k).mult(10);
 				  index = randomGenerator.nextInt(materials.size());
 				  makeMarble(vel, materials.get(index));
@@ -175,6 +177,8 @@ public void initWalls() {
     bulletAppState.getPhysicsSpace().add(ball_phy);
     /** Accelerate the physical ball to shoot it. */
     ball_phy.setLinearVelocity(vel_vect);
+    ball_phy.setRestitution(1f);
+    wall_phy.setFriction(0f);
   }
    public void initLighting(){
 	   
