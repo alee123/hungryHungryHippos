@@ -139,6 +139,7 @@ public void initWalls() {
     bulletAppState.getPhysicsSpace().add(wall_phy);
     wall_phy.setRestitution(1f);
     wall_phy.setFriction(0f);
+    wall_phy.setDamping(0f, 0f);
   }
   
   
@@ -178,7 +179,8 @@ public void initWalls() {
     /** Accelerate the physical ball to shoot it. */
     ball_phy.setLinearVelocity(vel_vect);
     ball_phy.setRestitution(1f);
-    wall_phy.setFriction(0f);
+    ball_phy.setFriction(0f);
+    ball_phy.setDamping(0f, 0f);
   }
    public void initLighting(){
 	   
