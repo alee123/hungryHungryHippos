@@ -58,7 +58,7 @@ public class HippoDisplay extends SimpleApplication {
 	private int canEat = 0;
 	private ActionListener actionListener = new ActionListener() {
 		public void onAction(String name, boolean keyPressed, float tpf) {
-			if (name.equals("eating") && !keyPressed) {
+			if (name.equals("Eating") && !keyPressed) {
 				canEat = 4;
 			}
 		}
