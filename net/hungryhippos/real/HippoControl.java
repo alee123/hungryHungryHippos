@@ -1,5 +1,7 @@
 package net.hungryhippos.real;
 
+import net.hungryhippos.real.eating.RecentCollisions;
+
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionListener;
@@ -7,31 +9,44 @@ import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.scene.Spatial;
 
+/*Makes the hippo eat things.
+ * 
+ * @author rboy
+ * @author vcoleman
+ * 
+ */
+
 public class HippoControl extends RigidBodyControl implements PhysicsCollisionListener{
 	private BulletAppState bulletAppState;
+	private RecentCollisions recentCollisions;
 
-	public HippoControl(BulletAppState bulletAppState) {
-		constructHelper(bulletAppState);
+	public HippoControl(int numLists, BulletAppState bulletAppState) {
+		constructHelper(numLists, bulletAppState);
 	}
 
-	public HippoControl(float mass, BulletAppState bulletAppState) {
+	public HippoControl(float mass, int numLists, BulletAppState bulletAppState) {
 		super(mass);
-		constructHelper(bulletAppState);
+		constructHelper(numLists, bulletAppState);
 	}
 
-	public HippoControl(CollisionShape shape, BulletAppState bulletAppState) {
+	public HippoControl(CollisionShape shape, int numLists, BulletAppState bulletAppState) {
 		super(shape);
-		constructHelper(bulletAppState);
+		constructHelper(numLists, bulletAppState);
 	}
 
-	public HippoControl(CollisionShape shape, float mass, BulletAppState bulletAppState) {
+	public HippoControl(CollisionShape shape, float mass, int numLists, BulletAppState bulletAppState) {
 		super(shape, mass);
-		constructHelper(bulletAppState);
+		constructHelper(numLists, bulletAppState);
 	}
 	
-	private void constructHelper(BulletAppState bulletAppState) {
+	private void constructHelper(int numLists, BulletAppState bulletAppState) {
 		this.bulletAppState = bulletAppState;
 		bulletAppState.getPhysicsSpace().addCollisionListener(this);
+		recentCollisions = new RecentCollisions(numLists, bulletAppState);
+	}
+	
+	public RecentCollisions getRecentCollisions(){
+		return recentCollisions;
 	}
 
 	@Override
@@ -40,16 +55,12 @@ public class HippoControl extends RigidBodyControl implements PhysicsCollisionLi
 		String nameB = event.getNodeB().getName();
 		if (nameA.equals("hippo")){
 			if (nameB.equals("marble")){
-				Spatial nodeB = event.getNodeB();
-				nodeB.removeFromParent();
-				bulletAppState.getPhysicsSpace().remove(nodeB);
+				recentCollisions.addBall(event.getNodeB());
 			}
 		}
 		else if (nameB.equals("hippo")){
 			if (nameA.equals("marble")){
-				Spatial nodeA = event.getNodeA();
-				nodeA.removeFromParent();
-				bulletAppState.getPhysicsSpace().remove(nodeA);
+				recentCollisions.addBall(event.getNodeA());
 			}
 		}
 	}
