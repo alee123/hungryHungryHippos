@@ -1,4 +1,4 @@
-package net.dianavermilya.hello;
+package net.hungryhippos.real;
  
 import java.util.ArrayList;
 import java.util.Random;
@@ -40,7 +40,9 @@ public class HippoDisplay extends SimpleApplication {
  
 	/** Prepare geometries and physical nodes for bricks and cannon balls. */
 	private RigidBodyControl    ball_phy;
+	private RigidBodyControl    hippo_phy;
 	private static final Sphere sphere;
+	private static final Box hippo;
 	private RigidBodyControl    wall_phy;
 	  
 	 
@@ -54,6 +56,7 @@ public class HippoDisplay extends SimpleApplication {
 		/** Initialize the marble geometry */
 		sphere = new Sphere(32, 32, 0.4f, true, false);
 		sphere.setTextureMode(TextureMode.Projected);
+		hippo = new Box(1,1,1);
 	}
  
   @Override
@@ -73,6 +76,7 @@ public class HippoDisplay extends SimpleApplication {
 	    initWalls();
 	    initMarbles();
 	    initLighting();
+	    makeHippo();
 	}
 	 
    	/** Initialize the materials used in this scene. */
@@ -182,6 +186,19 @@ public void initWalls() {
     ball_phy.setFriction(0f);
     ball_phy.setDamping(0f, 0f);
   }
+  
+   
+   public void makeHippo(){
+	   Geometry hippo_geo = new Geometry("hippo", hippo);
+	   hippo_geo.setMaterial(red_ball_mat);
+	   rootNode.attachChild(hippo_geo);
+	   Vector3f hippo_loc = new Vector3f(3,3,3);
+	   hippo_geo.setLocalTranslation(hippo_loc);
+	   hippo_phy = new HippoControl(0f, bulletAppState);
+	   hippo_geo.addControl(hippo_phy);
+	   bulletAppState.getPhysicsSpace().add(hippo_phy);
+   }
+   
    public void initLighting(){
 	   
 	    DirectionalLight sun = new DirectionalLight();
