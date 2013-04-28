@@ -172,9 +172,10 @@ public void initWalls() {
 	  for (int i=0;i<3;i++){
 		  for (int j=0;j<3;j++){		  
 			  for (int k=0;k<3;k++){
-				  Vector3f vel = new Vector3f(i, j, k).mult(10);
+				  Vector3f vel = new Vector3f(i, j, k).mult(2);
+				  Vector3f pos = new Vector3f(i,j,k);
 				  index = randomGenerator.nextInt(materials.size());
-				  makeMarble(vel, materials.get(index));
+				  makeMarble(vel, pos, materials.get(index));
 			  }
 		  }
 	  }
@@ -182,14 +183,13 @@ public void initWalls() {
  
   /** This method creates one individual physical marble. **/
 
-   public void makeMarble(Vector3f vel_vect, Material mat) {
+   public void makeMarble(Vector3f vel_vect, Vector3f pos, Material mat) {
     /** Create a marble geometry and attach to scene graph. */
     Geometry ball_geo = new Geometry("marble", sphere);   
     ball_geo.setMaterial(mat);
     rootNode.attachChild(ball_geo);
-    /** Position the marble  */
-    Vector3f ball_loc = new Vector3f(0,0,0);    
-    ball_geo.setLocalTranslation(ball_loc);
+    /** Position the marble  */  
+    ball_geo.setLocalTranslation(pos);
     /** Make the ball physical with a mass > 0.0f */
     ball_phy = new RigidBodyControl(.001f);
     /** Add physical ball to physics space. */
@@ -245,8 +245,7 @@ public void initWalls() {
    /* This is the update loop */
    @Override
    public void simpleUpdate(float tpf) {
-	   System.out.println(canEat);
-       if (timer.getTime() > 100){
+       if (timer.getTime() > 200){
     	   if (canEat > 0){
     		   hippo_phy.getRecentCollisions().eatBalls();
     		   canEat--;
