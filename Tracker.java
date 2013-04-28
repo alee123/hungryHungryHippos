@@ -16,7 +16,7 @@ import boofcv.gui.feature.VisualizeFeatures;
 import boofcv.gui.feature.VisualizeShapes;
 import boofcv.struct.image.ImageUInt8;
 
-public class Tracker {
+public class Tracker implements analyzer{
 	static PointTracker<ImageUInt8> tracker;
     static ArrayList<Point2D_I32> rectangle = new ArrayList<Point2D_I32>();
     static int rectW = 320;
@@ -41,7 +41,7 @@ public class Tracker {
 		
 	}
 	 
-	 public static BufferedImage track( BufferedImage bufferedImage )
+	 public BufferedImage analyze ( BufferedImage bufferedImage )
  	{
      	ImageUInt8 test = new ImageUInt8(bufferedImage.getWidth(),bufferedImage.getHeight());
      	ConvertBufferedImage.convertFrom(bufferedImage, test);

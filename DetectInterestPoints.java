@@ -25,9 +25,9 @@ import boofcv.struct.BoofDefaults;
 import boofcv.struct.image.ImageFloat32;
 import boofcv.struct.image.ImageUInt8;
 
-public class DetectInterestPoints {
+public class DetectInterestPoints implements analyzer {
 	 static InterestPointDetector<ImageUInt8> detector = FactoryInterestPoint.fastHessian(
-				new ConfigFastHessian(100, 1, 10, 2, 9, 4, 4));
+				new ConfigFastHessian(10, 2, 5, 2, 9, 3, 4));
 	 
 //	 static InterestPointDetector<ImageUInt8> detector = FactoryInterestPoint.fastHessian(
 //				new ConfigFastHessian(10, 2, 5, 2, 9, 3, 4));
@@ -41,6 +41,7 @@ public class DetectInterestPoints {
     static int sizeH = 80;
     static int sizeW = 80;
     static int framenum = 0;
+    
 	 DetectInterestPoints(){
 			rectangle.add(new Point2D_I32(rectW - sizeW, rectH - sizeH));
 			rectangle.add(new Point2D_I32(rectW + sizeW, rectH - sizeH));
@@ -48,7 +49,7 @@ public class DetectInterestPoints {
 			rectangle.add(new Point2D_I32(rectW - sizeW, rectH + sizeH));
 	 }
 	 
-    public static BufferedImage detect( BufferedImage bufferedImage )
+    public BufferedImage analyze( BufferedImage bufferedImage )
 	{
     	
     	ImageUInt8 input = new ImageUInt8(bufferedImage.getWidth(),bufferedImage.getHeight());
@@ -98,6 +99,8 @@ public class DetectInterestPoints {
 		
 		EnhanceImageOps.equalizeLocal(gray, 50, adjusted, histogram, transform);
 		return gray;
+		
+		//ccv
 	}
 }
 

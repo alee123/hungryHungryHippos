@@ -1,4 +1,4 @@
-package net.sskikne.Facetrack;
+	package net.sskikne.Facetrack;
 
 import georegression.struct.point.Point2D_I32;
 
@@ -56,14 +56,15 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
         private JFrame          frame;
         
         private static ImagePanel gauss;
-       DetectInterestPoints detector = new DetectInterestPoints();
-        
+        analyzer detector;
+        analyzer detector2;
+        analyzer detector3;
         public static void main(String args[]){
         	
                 SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                                new SimpleViewer();
+                                new SimpleViewer(new BinaryCleaner());
                         }
                 });
         }
@@ -72,8 +73,11 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
          * Builds a WebcamViewer object
          * @throws V4L4JException if any parameter if invalid
          */
-        public SimpleViewer(){
-                // Initialise video device and frame grabber
+        public SimpleViewer( analyzer detector){
+        		this.detector = detector;
+        		detector2 = new DetectInterestPoints();
+                detector3 = new Tracker();
+        		// Initialise video device and frame grabber
                 try {
                         initFrameGrabber();
                 } catch (V4L4JException e1) {
@@ -169,8 +173,8 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
         		BufferedImage x = frame.getBufferedImage();
 //                label.getGraphics().drawImage(x , 0, 0, width, height, null);
                 
-        		label.getGraphics().drawImage(detector.detect(x), 0, 0, width, height, null);
-                
+        		label.getGraphics().drawImage(detector2.analyze(detector.analyze(x)), 0, 0, width, height, null);
+               
                 frame.recycle();
                 
         }
