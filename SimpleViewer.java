@@ -172,8 +172,10 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
                 // draw the new frame onto the JLabel
         		BufferedImage x = frame.getBufferedImage();
 //                label.getGraphics().drawImage(x , 0, 0, width, height, null);
-                
-        		label.getGraphics().drawImage(detector2.analyze(detector.analyze(x)), 0, 0, width, height, null);
+
+        		label.getGraphics().drawImage(detector2.analyze(x), 0, 0, width, height, null);
+               
+        		label.getGraphics().drawImage(detector2.analyze(detector2.analyze(x)), 0, 0, width, height, null);
                
                 frame.recycle();
                 
