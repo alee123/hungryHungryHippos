@@ -21,7 +21,11 @@ public class Mouth {
 	 * 
 	 */
 	public Mouth(float x, float y, float z) {
-		// TODO Auto-generated constructor stub
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.open = true;
+		this.calibrated = false;
 	}
 	
 	public void setOpen(boolean open){
@@ -32,7 +36,7 @@ public class Mouth {
 		this.calibrated = calibrated;
 	}
 
-	public void setX(int x) {
+	public void setX(float x) {
 		if (x>=0 && x<=1){
 			this.x = x;
 		}
@@ -44,7 +48,7 @@ public class Mouth {
 		}
 	}
 
-	public void setY(int y) {
+	public void setY(float y) {
 		if (y>=0 && y<=1){
 			this.y = y;
 		}
@@ -56,7 +60,7 @@ public class Mouth {
 		}
 	}
 
-	public void setZ(int z) {
+	public void setZ(float z) {
 		if (z>=0 && z<=1){
 			this.z = z;
 		}
