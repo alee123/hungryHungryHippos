@@ -49,6 +49,7 @@ public class HippoDisplay extends SimpleApplication {
 	private static final Sphere sphere;
 	private static final Box hippo;
 	private RigidBodyControl    wall_phy;
+	private Geometry hippo_geo;
 	  
 	 
 	/** dimensions used for transparent walls */
@@ -56,6 +57,7 @@ public class HippoDisplay extends SimpleApplication {
 	private static final float wallThickness = .2f;
 	
 	private int score = 0;
+	private Mouth mouth = new Mouth(1,1,1);
 	
 	private Timer timer = getTimer();
 	private int canEat = 0;
@@ -104,6 +106,12 @@ public class HippoDisplay extends SimpleApplication {
     	   hippo_phy.getRecentCollisions().timeOutList();
     	   timer.reset();
        }
+       
+       Vector3f hippo_pos = mouth.getPosition();
+       hippo_geo.move(hippo_pos.subtract((hippo_geo.getLocalTranslation())));
+       mouth.setX(hippo_pos.x + .2f);
+       mouth.setY(hippo_pos.y + .2f);
+       mouth.setZ(hippo_pos.z + .2f);
    }
    
    private void addScore(int i){
@@ -235,12 +243,12 @@ public class HippoDisplay extends SimpleApplication {
 	  
 	   
 	   public void initHippo(){
-		   Geometry hippo_geo = new Geometry("hippo", hippo);
+		   hippo_geo = new Geometry("hippo", hippo);
 		   hippo_geo.setMaterial(red_ball_mat);
 		   rootNode.attachChild(hippo_geo);
 		   Vector3f hippo_loc = new Vector3f(3,3,3);
 		   hippo_geo.setLocalTranslation(hippo_loc);
-		   hippo_phy = new HippoControl(0f, 3, bulletAppState);
+		   hippo_phy = new HippoControl(3, bulletAppState);
 		   hippo_geo.addControl(hippo_phy);
 		   bulletAppState.getPhysicsSpace().add(hippo_phy);
 	   }

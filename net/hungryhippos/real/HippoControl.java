@@ -6,6 +6,8 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionListener;
 import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.control.GhostControl;
+import com.jme3.bullet.control.KinematicRagdollControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.scene.Spatial;
 
@@ -23,19 +25,9 @@ public class HippoControl extends RigidBodyControl implements PhysicsCollisionLi
 	public HippoControl(int numLists, BulletAppState bulletAppState) {
 		constructHelper(numLists, bulletAppState);
 	}
-
+	
 	public HippoControl(float mass, int numLists, BulletAppState bulletAppState) {
 		super(mass);
-		constructHelper(numLists, bulletAppState);
-	}
-
-	public HippoControl(CollisionShape shape, int numLists, BulletAppState bulletAppState) {
-		super(shape);
-		constructHelper(numLists, bulletAppState);
-	}
-
-	public HippoControl(CollisionShape shape, float mass, int numLists, BulletAppState bulletAppState) {
-		super(shape, mass);
 		constructHelper(numLists, bulletAppState);
 	}
 	
