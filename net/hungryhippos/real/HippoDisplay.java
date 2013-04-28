@@ -1,4 +1,4 @@
-package net.dianavermilya.hello;
+package net.hungryhippos.real;
  
 import java.util.ArrayList;
 import java.util.Random;
@@ -6,6 +6,9 @@ import java.util.Random;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
@@ -17,6 +20,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
+import com.jme3.system.Timer;
  
 /**
  * Example 12 - how to give objects physical properties so they bounce and fall.
@@ -40,20 +44,33 @@ public class HippoDisplay extends SimpleApplication {
  
 	/** Prepare geometries and physical nodes for bricks and cannon balls. */
 	private RigidBodyControl    ball_phy;
+	private HippoControl    hippo_phy;
 	private static final Sphere sphere;
+	private static final Box hippo;
 	private RigidBodyControl    wall_phy;
 	  
 	 
 	/** dimensions used for transparent walls */
 	private static final float wallSide = 5f;
 	private static final float wallThickness = .2f;
-  
+	
+	private Timer timer = getTimer();
+	private int canEat = 0;
+	private ActionListener actionListener = new ActionListener() {
+		public void onAction(String name, boolean keyPressed, float tpf) {
+			if (name.equals("Eating") && !keyPressed) {
+				canEat = 4;
+			}
+		}
+	};
+	
 
  
 	static {
 		/** Initialize the marble geometry */
 		sphere = new Sphere(32, 32, 0.4f, true, false);
 		sphere.setTextureMode(TextureMode.Projected);
+		hippo = new Box(1,1,1);
 	}
  
   @Override
@@ -73,6 +90,8 @@ public class HippoDisplay extends SimpleApplication {
 	    initWalls();
 	    initMarbles();
 	    initLighting();
+	    initHippo();
+	    initKeys();
 	}
 	 
    	/** Initialize the materials used in this scene. */
@@ -182,6 +201,19 @@ public void initWalls() {
     ball_phy.setFriction(0f);
     ball_phy.setDamping(0f, 0f);
   }
+  
+   
+   public void initHippo(){
+	   Geometry hippo_geo = new Geometry("hippo", hippo);
+	   hippo_geo.setMaterial(red_ball_mat);
+	   rootNode.attachChild(hippo_geo);
+	   Vector3f hippo_loc = new Vector3f(3,3,3);
+	   hippo_geo.setLocalTranslation(hippo_loc);
+	   hippo_phy = new HippoControl(0f, 3, bulletAppState);
+	   hippo_geo.addControl(hippo_phy);
+	   bulletAppState.getPhysicsSpace().add(hippo_phy);
+   }
+   
    public void initLighting(){
 	   
 	    DirectionalLight sun = new DirectionalLight();
@@ -203,5 +235,26 @@ public void initWalls() {
 	   rootNode.addLight(lamp_light);
 	   */
    }
- 
+   
+   private void initKeys() {
+	   inputManager.addMapping("Eating", new KeyTrigger(KeyInput.KEY_SPACE));
+	   inputManager.addListener(actionListener,  new String[]{"Eating"});
+   }
+   
+   
+   /* This is the update loop */
+   @Override
+   public void simpleUpdate(float tpf) {
+	   System.out.println(canEat);
+       if (timer.getTime() > 100){
+    	   if (canEat > 0){
+    		   hippo_phy.getRecentCollisions().eatBalls();
+    		   canEat--;
+    	   }
+    	   hippo_phy.getRecentCollisions().timeOutList();
+    	   timer.reset();
+       }
+   }
+
 }
+
