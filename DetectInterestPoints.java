@@ -4,6 +4,7 @@ import georegression.struct.point.Point2D_F64;
 import georegression.struct.point.Point2D_I32;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -42,6 +43,7 @@ public class DetectInterestPoints implements analyzer {
     static int sizeW = 80;
     static int framenum = 0;
     
+    
 	 DetectInterestPoints(){
 			rectangle.add(new Point2D_I32(rectW - sizeW, rectH - sizeH));
 			rectangle.add(new Point2D_I32(rectW + sizeW, rectH - sizeH));
@@ -49,18 +51,28 @@ public class DetectInterestPoints implements analyzer {
 			rectangle.add(new Point2D_I32(rectW - sizeW, rectH + sizeH));
 	 }
 	 
+	public boolean inrectangle(Point2D_F64 point){
+		if (point.x > rectW - sizeW && point.x < rectW + sizeW && point.y > rectH - sizeH && point.y < rectH + sizeH){
+			return true;
+		}
+		return false;
+	} 
     public BufferedImage analyze( BufferedImage bufferedImage )
 	{
-    	
+//    	if (framenum == 1){
+//    		ExampleFitPolygon p = new ExampleFitPolygon();
+//    		p.fit(bufferedImage);
+//    	}
     	ImageUInt8 input = new ImageUInt8(bufferedImage.getWidth(),bufferedImage.getHeight());
 //    	ImageUInt8 output = new ImageUInt8(bufferedImage.getWidth(),bufferedImage.getHeight());
 //     	
     	ConvertBufferedImage.convertFrom(bufferedImage, input);
                   
 //    	ImageFloat32 input = ConvertBufferedImage.convertFromSingle(bufferedImage, null, ImageFloat32.class);
-    	detector.detect(input);//histogram(bufferedImage));
+    	detector.detect(input);
+//    	histogram(bufferedImage);
     	
-		Graphics2D g2 = bufferedImage	.createGraphics();
+		Graphics2D g2 = bufferedImage.createGraphics();
 		FancyInterestPointRender render = new FancyInterestPointRender();
 		VisualizeShapes.drawPolygon(rectangle, true, g2);
  
@@ -70,13 +82,20 @@ public class DetectInterestPoints implements analyzer {
 			if( detector.hasScale() ) {
 				double scale = detector.getScale(i);
 				int radius = (int)(scale* BoofDefaults.SCALE_SPACE_CANONICAL_RADIUS);
-				render.addCircle((int)pt.x,(int)pt.y,radius);
+				if (inrectangle(pt)){
+					render.addCircle((int)pt.x,(int)pt.y,radius, Color.RED);
+					System.out.println("IN");
+				}else{
+					System.out.println("NOT IN");
+					render.addCircle((int)pt.x,(int)pt.y,radius, Color.BLACK);
+				}
+				
 			} else {
 				render.addPoint((int) pt.x, (int) pt.y);
 			}
 		}
 		// make the circle's thicker
-		g2.setStroke(new BasicStroke(3));
+		g2.setStroke(new BasicStroke(7));
  
 		// just draw the features onto the input image
 		render.draw(g2);
