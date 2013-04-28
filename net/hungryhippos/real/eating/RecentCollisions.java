@@ -10,6 +10,7 @@ import java.util.Queue;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
+import com.jme3.bullet.control.RigidBodyControl;
 
 /**Keeps a list of recent collisions so the hippo can eat things that entered its mouth before it was closed
  * 
@@ -45,16 +46,24 @@ public class RecentCollisions {
 		
 	}
 
-	public void eatBalls() {
+	/*
+	 * @return number of balls eaten
+	 */
+	public int eatBalls() {
+		int total = 0;
 		for(Queue<Spatial> list : recentCollisions){
 			for (Spatial ball : list){
-				ball.removeFromParent();
-				bulletAppState.getPhysicsSpace().remove(ball);
+				if (bulletAppState.getPhysicsSpace().getRigidBodyList().contains(ball.getControl(0))){
+					total++;
+					ball.removeFromParent();
+					bulletAppState.getPhysicsSpace().remove(ball);
+				}
 			}
 		}
 		recentCollisions = new LinkedList<Queue<Spatial>>();
 		for (int i=0; i<numLists; i++){
 			recentCollisions.add(new LinkedList<Spatial>());
 		}
+		return total;
 	}
 }

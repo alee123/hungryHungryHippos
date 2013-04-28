@@ -22,9 +22,10 @@ import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
 import com.jme3.system.Timer;
  
-/**
- * Example 12 - how to give objects physical properties so they bounce and fall.
- * @author base code by double1984, updated by zathras
+/**Hungry Hungy Hippos.
+ * 
+ * @author vcoleman, rboy, alee, dvermilya
+ * @author adapted from base code by double1984, updated by zathras
  */
 public class HippoDisplay extends SimpleApplication {
  
@@ -53,6 +54,8 @@ public class HippoDisplay extends SimpleApplication {
 	/** dimensions used for transparent walls */
 	private static final float wallSide = 5f;
 	private static final float wallThickness = .2f;
+	
+	private int score = 0;
 	
 	private Timer timer = getTimer();
 	private int canEat = 0;
@@ -93,12 +96,22 @@ public class HippoDisplay extends SimpleApplication {
    public void simpleUpdate(float tpf) {
        if (timer.getTime() > 200){
     	   if (canEat > 0){
-    		   hippo_phy.getRecentCollisions().eatBalls();
+    		   int eaten = hippo_phy.getRecentCollisions().eatBalls();
+    		   addScore(eaten);
+    		   System.out.println(getScore());
     		   canEat--;
     	   }
     	   hippo_phy.getRecentCollisions().timeOutList();
     	   timer.reset();
        }
+   }
+   
+   private void addScore(int i){
+	   score += i;
+   }
+   
+   public int getScore(){
+	   return score;
    }
    
    private class WorldGenerator{
