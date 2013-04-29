@@ -139,20 +139,21 @@ public class HippoDisplay extends SimpleApplication {
 		    wall_mat.setColor("Color", new ColorRGBA(1,1,1,0.1f));
 		    wall_mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);    		
 		  
-		    red_ball_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");  	
-		    red_ball_mat.setColor("Color", new ColorRGBA(1,0,0,0.01f));
-	    	//red_ball_mat.setColor("Ambient", ColorRGBA.Red);   // ... color of this object
-	    	//red_ball_mat.setColor("Diffuse", ColorRGBA.Red);   // ... color of light being reflected
+		    red_ball_mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");  	
+		    red_ball_mat.setBoolean("UseMaterialColors", true);
+		    //red_ball_mat.setColor("Color", new ColorRGBA(1,0,0,0.01f));
+	    	red_ball_mat.setColor("Ambient", ColorRGBA.Red);   // ... color of this object
+	    	red_ball_mat.setColor("Diffuse", ColorRGBA.White);   // ... color of light being reflected
 	  	    
 		    blue_ball_mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
 		    blue_ball_mat.setBoolean("UseMaterialColors",true);  // Set some parameters, e.g. blue.
 	    	blue_ball_mat.setColor("Ambient", ColorRGBA.Blue);   // ... color of this object
-	    	blue_ball_mat.setColor("Diffuse", ColorRGBA.Blue);   // ... color of light being reflected
+	    	blue_ball_mat.setColor("Diffuse", ColorRGBA.White);   // ... color of light being reflected
 		   
 		    green_ball_mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
 		    green_ball_mat.setBoolean("UseMaterialColors",true);  // Set some parameters, e.g. blue.
 	    	green_ball_mat.setColor("Ambient", ColorRGBA.Green);   // ... color of this object
-	    	green_ball_mat.setColor("Diffuse", ColorRGBA.Green);   // ... color of light being reflected
+	    	green_ball_mat.setColor("Diffuse", ColorRGBA.GWhite);   // ... color of light being reflected
 		    
 		}
 	 
@@ -254,15 +255,10 @@ public class HippoDisplay extends SimpleApplication {
 	   }
 	   
 	   public void initLighting(){
-		   
-		    DirectionalLight sun = new DirectionalLight();
-		    sun.setDirection(new Vector3f(0,0,0).normalizeLocal());
-		    sun.setColor(ColorRGBA.White);
-		    rootNode.addLight(sun);
-		    /*   
+		    
 		   
 		   AmbientLight al = new AmbientLight();
-		   al.setColor(ColorRGBA.White.mult(0.25f));
+		   al.setColor(ColorRGBA.White.mult(1.3f));
 		   rootNode.addLight(al);
 		   
 		   
@@ -270,9 +266,9 @@ public class HippoDisplay extends SimpleApplication {
 		   PointLight lamp_light = new PointLight();
 		   lamp_light.setColor(ColorRGBA.White);
 		   lamp_light.setRadius(100f);
-		   lamp_light.setPosition(new Vector3f(0,0,0));
+		   lamp_light.setPosition(new Vector3f(1,1,1));
 		   rootNode.addLight(lamp_light);
-		   */
+
 	   }
 	   
 	   private void initKeys() {
