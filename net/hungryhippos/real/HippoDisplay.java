@@ -1,4 +1,4 @@
-package net.hungryhippos.real;
+package real;
  
 import java.util.ArrayList;
 import java.util.Random;
