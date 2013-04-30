@@ -1,4 +1,4 @@
-package net.hungryhippos.real;
+package real;
  
 import java.util.ArrayList;
 import java.util.Random;
@@ -10,6 +10,7 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
+import com.jme3.light.PointLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
@@ -126,10 +127,10 @@ public class HippoDisplay extends SimpleApplication {
    private class WorldGenerator{
 	   
 	   public void initWorld() {
+	   		initLighting();
 		   	initMaterials();
 		    initWalls();
 		    initMarbles();
-		    initLighting();
 		    initHippo();
 		    initKeys();
 	   }
