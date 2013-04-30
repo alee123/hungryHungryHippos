@@ -84,4 +84,16 @@ public class Mouth {
 		return new Vector3f(x,y,z);
 	}
 
+	public float getX() {
+		return x;
+	}
+
+	public float getY() {
+		return y;
+	}
+
+	public float getZ() {
+		return z;
+	}
+
 }

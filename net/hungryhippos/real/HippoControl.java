@@ -47,9 +47,7 @@ public class HippoControl extends GhostControl implements PhysicsCollisionListen
 		String nameA = event.getNodeA().getName();
 		String nameB = event.getNodeB().getName();
 		if (nameA.equals("hippo")){
-			if (nameB.equals("marble")){
-				recentCollisions.addBall(event.getNodeB());
-			}
+			recentCollisions.addBall(event.getNodeB());
 		}
 		else if (nameB.equals("hippo")){
 			if (nameA.equals("marble")){

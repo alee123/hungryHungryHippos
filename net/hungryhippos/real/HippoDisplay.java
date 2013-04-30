@@ -1,10 +1,12 @@
-package real;
+package net.hungryhippos.real;
  
 import java.util.ArrayList;
 import java.util.Random;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
+import com.jme3.bullet.collision.PhysicsCollisionObject;
+import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -19,6 +21,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
@@ -51,7 +54,7 @@ public class HippoDisplay extends SimpleApplication {
 	private static final Sphere sphere;
 	private static final Box hippo;
 	private RigidBodyControl    wall_phy;
-	private Geometry hippo_geo;
+	private Node hippo_node;
 	  
 	 
 	/** dimensions used for transparent walls */
@@ -99,21 +102,28 @@ public class HippoDisplay extends SimpleApplication {
    @Override
    public void simpleUpdate(float tpf) {
        if (timer.getTime() > 200){
-    	   if (canEat > 0){
+    	   /*if (canEat > 0){
     		   int eaten = hippo_phy.getRecentCollisions().eatBalls();
     		   addScore(eaten);
     		   System.out.println(getScore());
     		   canEat--;
-    	   }
+    	   }*/
     	   hippo_phy.getRecentCollisions().timeOutList();
     	   timer.reset();
        }
+	   if (canEat>0) {
+		   addScore(hippo_phy.getRecentCollisions().eatBalls());
+		   canEat = 0;
+       }
        
        Vector3f hippo_pos = mouth.getPosition();
-       hippo_geo.move(hippo_pos.subtract((hippo_geo.getLocalTranslation())));
-       mouth.setX(hippo_pos.x + .2f);
-       mouth.setY(hippo_pos.y + .2f);
-       mouth.setZ(hippo_pos.z + .2f);
+       hippo_pos = hippo_pos.mult(wallSide*2).subtract(new Vector3f(wallSide,wallSide,wallSide));
+       System.out.println(hippo_pos);
+       hippo_node.setLocalTranslation(hippo_pos);
+       //hippo_node.move(hippo_pos.subtract(hippo_node.getLocalTranslation()));
+       mouth.setX(mouth.getX() - .01f);
+       mouth.setY(mouth.getY() - .01f);
+       mouth.setZ(mouth.getZ() - .01f);
    }
    
    private void addScore(int i){
@@ -246,13 +256,15 @@ public class HippoDisplay extends SimpleApplication {
 	  
 	   
 	   public void initHippo(){
-		   hippo_geo = new Geometry("hippo", hippo);
+		   Geometry hippo_geo = new Geometry("hippo", hippo);
 		   hippo_geo.setMaterial(red_ball_mat);
-		   rootNode.attachChild(hippo_geo);
+		   hippo_node = new Node("hippo");
+		   hippo_node.attachChild(hippo_geo);
 		   Vector3f hippo_loc = new Vector3f(3,3,3);
-		   hippo_geo.setLocalTranslation(hippo_loc);
-		   hippo_phy = new HippoControl(3, bulletAppState);
-		   hippo_geo.addControl(hippo_phy);
+		   hippo_node.setLocalTranslation(hippo_loc);
+		   hippo_phy = new HippoControl(new BoxCollisionShape(new Vector3f(1,1,1)), 3, bulletAppState);
+		   hippo_node.addControl(hippo_phy);
+		   rootNode.attachChild(hippo_node);
 		   bulletAppState.getPhysicsSpace().add(hippo_phy);
 	   }
 	   
