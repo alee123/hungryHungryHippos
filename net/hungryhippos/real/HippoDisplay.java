@@ -11,6 +11,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
+import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
@@ -153,7 +154,7 @@ public class HippoDisplay extends SimpleApplication {
 		    green_ball_mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
 		    green_ball_mat.setBoolean("UseMaterialColors",true);  // Set some parameters, e.g. blue.
 	    	green_ball_mat.setColor("Ambient", ColorRGBA.Green);   // ... color of this object
-	    	green_ball_mat.setColor("Diffuse", ColorRGBA.GWhite);   // ... color of light being reflected
+	    	green_ball_mat.setColor("Diffuse", ColorRGBA.White);   // ... color of light being reflected
 		    
 		}
 	 

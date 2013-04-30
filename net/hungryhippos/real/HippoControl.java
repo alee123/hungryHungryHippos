@@ -18,7 +18,7 @@ import com.jme3.scene.Spatial;
  * 
  */
 
-public class HippoControl extends RigidBodyControl implements PhysicsCollisionListener{
+public class HippoControl extends GhostControl implements PhysicsCollisionListener{
 	private BulletAppState bulletAppState;
 	private RecentCollisions recentCollisions;
 
@@ -26,10 +26,11 @@ public class HippoControl extends RigidBodyControl implements PhysicsCollisionLi
 		constructHelper(numLists, bulletAppState);
 	}
 	
-	public HippoControl(float mass, int numLists, BulletAppState bulletAppState) {
-		super(mass);
+	public HippoControl(CollisionShape shape, int numLists, BulletAppState bulletAppState) {
+		super(shape);
 		constructHelper(numLists, bulletAppState);
 	}
+
 	
 	private void constructHelper(int numLists, BulletAppState bulletAppState) {
 		this.bulletAppState = bulletAppState;
