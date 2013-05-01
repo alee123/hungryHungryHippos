@@ -1,5 +1,3 @@
-	package net.sskikne.Facetrack;
-
 import georegression.struct.point.Point2D_I32;
 
 import java.awt.Color;
@@ -56,15 +54,14 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
         private JFrame          frame;
         
         private static ImagePanel gauss;
-        analyzer detector;
-        analyzer detector2;
-        analyzer detector3;
+        private analyzer imageCleaner;
+        private analyzer detector;
         public static void main(String args[]){
         	
                 SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                                new SimpleViewer(new BinaryCleaner());
+                                new SimpleViewer();
                         }
                 });
         }
@@ -73,10 +70,9 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
          * Builds a WebcamViewer object
          * @throws V4L4JException if any parameter if invalid
          */
-        public SimpleViewer( analyzer detector){
-        		this.detector = detector;
-        		detector2 = new DetectInterestPoints();
-                detector3 = new Tracker();
+        public SimpleViewer(){
+        		this.imageCleaner = new BinaryCleaner();
+        		this.detector = new DetectInterestPoints();
         		// Initialise video device and frame grabber
                 try {
                         initFrameGrabber();
@@ -171,12 +167,12 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
                 
                 // draw the new frame onto the JLabel
         		BufferedImage x = frame.getBufferedImage();
-//                label.getGraphics().drawImage(x , 0, 0, width, height, null);
-
-        		label.getGraphics().drawImage(detector2.analyze(x), 0, 0, width, height, null);
+        		
+        		
+        		BufferedImage binaryCleaned = imageCleaner.analyze(x);
+        		label.getGraphics().drawImage(detector.analyze(binaryCleaned), 0, 0, width, height, null);
                
-//        		label.getGraphics().drawImage(detector2.analyze(detector.analyze(x)), 0, 0, width, height, null);
-               
+        		
                 frame.recycle();
                 
         }
