@@ -28,7 +28,7 @@ public class BinaryCleaner implements analyzer{
     		double mean = ImageStatistics.mean(input);
      
     		// create a binary image by thresholding
-    		ThresholdImageOps.threshold(input,binary,(float)(mean -30.0),true);
+    		ThresholdImageOps.threshold(input,binary,(float)(mean -50.0),true);
      
     		// remove small blobs through erosion and dilation
     		// The null in the input indicates that it should internally declare the work image it needs
