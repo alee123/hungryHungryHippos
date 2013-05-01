@@ -5,18 +5,23 @@ import java.util.Random;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
+import com.jme3.bullet.collision.PhysicsCollisionObject;
+import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
+import com.jme3.light.PointLight;
 import com.jme3.light.DirectionalLight;
+import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
@@ -49,6 +54,7 @@ public class HippoDisplay extends SimpleApplication {
 	private static final Sphere sphere;
 	private static final Box hippo;
 	private RigidBodyControl    wall_phy;
+	private Node hippo_node;
 	  
 	 
 	/** dimensions used for transparent walls */
@@ -56,6 +62,7 @@ public class HippoDisplay extends SimpleApplication {
 	private static final float wallThickness = .2f;
 	
 	private int score = 0;
+	private Mouth mouth = new Mouth(1,1,1);
 	
 	private Timer timer = getTimer();
 	private int canEat = 0;
@@ -95,15 +102,28 @@ public class HippoDisplay extends SimpleApplication {
    @Override
    public void simpleUpdate(float tpf) {
        if (timer.getTime() > 200){
-    	   if (canEat > 0){
+    	   /*if (canEat > 0){
     		   int eaten = hippo_phy.getRecentCollisions().eatBalls();
     		   addScore(eaten);
     		   System.out.println(getScore());
     		   canEat--;
-    	   }
+    	   }*/
     	   hippo_phy.getRecentCollisions().timeOutList();
     	   timer.reset();
        }
+	   if (canEat>0) {
+		   addScore(hippo_phy.getRecentCollisions().eatBalls());
+		   canEat = 0;
+       }
+       
+       Vector3f hippo_pos = mouth.getPosition();
+       hippo_pos = hippo_pos.mult(wallSide*2).subtract(new Vector3f(wallSide,wallSide,wallSide));
+       System.out.println(hippo_pos);
+       hippo_node.setLocalTranslation(hippo_pos);
+       //hippo_node.move(hippo_pos.subtract(hippo_node.getLocalTranslation()));
+       mouth.setX(mouth.getX() - .01f);
+       mouth.setY(mouth.getY() - .01f);
+       mouth.setZ(mouth.getZ() - .01f);
    }
    
    private void addScore(int i){
@@ -117,10 +137,10 @@ public class HippoDisplay extends SimpleApplication {
    private class WorldGenerator{
 	   
 	   public void initWorld() {
+	   		initLighting();
 		   	initMaterials();
 		    initWalls();
 		    initMarbles();
-		    initLighting();
 		    initHippo();
 		    initKeys();
 	   }
@@ -131,20 +151,21 @@ public class HippoDisplay extends SimpleApplication {
 		    wall_mat.setColor("Color", new ColorRGBA(1,1,1,0.1f));
 		    wall_mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);    		
 		  
-		    red_ball_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");  	
-		    red_ball_mat.setColor("Color", new ColorRGBA(1,0,0,0.01f));
-	    	//red_ball_mat.setColor("Ambient", ColorRGBA.Red);   // ... color of this object
-	    	//red_ball_mat.setColor("Diffuse", ColorRGBA.Red);   // ... color of light being reflected
+		    red_ball_mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");  	
+		    red_ball_mat.setBoolean("UseMaterialColors", true);
+		    //red_ball_mat.setColor("Color", new ColorRGBA(1,0,0,0.01f));
+	    	red_ball_mat.setColor("Ambient", ColorRGBA.Red);   // ... color of this object
+	    	red_ball_mat.setColor("Diffuse", ColorRGBA.White);   // ... color of light being reflected
 	  	    
 		    blue_ball_mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
 		    blue_ball_mat.setBoolean("UseMaterialColors",true);  // Set some parameters, e.g. blue.
 	    	blue_ball_mat.setColor("Ambient", ColorRGBA.Blue);   // ... color of this object
-	    	blue_ball_mat.setColor("Diffuse", ColorRGBA.Blue);   // ... color of light being reflected
+	    	blue_ball_mat.setColor("Diffuse", ColorRGBA.White);   // ... color of light being reflected
 		   
 		    green_ball_mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
 		    green_ball_mat.setBoolean("UseMaterialColors",true);  // Set some parameters, e.g. blue.
 	    	green_ball_mat.setColor("Ambient", ColorRGBA.Green);   // ... color of this object
-	    	green_ball_mat.setColor("Diffuse", ColorRGBA.Green);   // ... color of light being reflected
+	    	green_ball_mat.setColor("Diffuse", ColorRGBA.White);   // ... color of light being reflected
 		    
 		}
 	 
@@ -237,24 +258,21 @@ public class HippoDisplay extends SimpleApplication {
 	   public void initHippo(){
 		   Geometry hippo_geo = new Geometry("hippo", hippo);
 		   hippo_geo.setMaterial(red_ball_mat);
-		   rootNode.attachChild(hippo_geo);
+		   hippo_node = new Node("hippo");
+		   hippo_node.attachChild(hippo_geo);
 		   Vector3f hippo_loc = new Vector3f(3,3,3);
-		   hippo_geo.setLocalTranslation(hippo_loc);
-		   hippo_phy = new HippoControl(0f, 3, bulletAppState);
-		   hippo_geo.addControl(hippo_phy);
+		   hippo_node.setLocalTranslation(hippo_loc);
+		   hippo_phy = new HippoControl(new BoxCollisionShape(new Vector3f(1,1,1)), 3, bulletAppState);
+		   hippo_node.addControl(hippo_phy);
+		   rootNode.attachChild(hippo_node);
 		   bulletAppState.getPhysicsSpace().add(hippo_phy);
 	   }
 	   
 	   public void initLighting(){
-		   
-		    DirectionalLight sun = new DirectionalLight();
-		    sun.setDirection(new Vector3f(0,0,0).normalizeLocal());
-		    sun.setColor(ColorRGBA.White);
-		    rootNode.addLight(sun);
-		    /*   
+		    
 		   
 		   AmbientLight al = new AmbientLight();
-		   al.setColor(ColorRGBA.White.mult(0.25f));
+		   al.setColor(ColorRGBA.White.mult(1.3f));
 		   rootNode.addLight(al);
 		   
 		   
@@ -262,9 +280,9 @@ public class HippoDisplay extends SimpleApplication {
 		   PointLight lamp_light = new PointLight();
 		   lamp_light.setColor(ColorRGBA.White);
 		   lamp_light.setRadius(100f);
-		   lamp_light.setPosition(new Vector3f(0,0,0));
+		   lamp_light.setPosition(new Vector3f(1,1,1));
 		   rootNode.addLight(lamp_light);
-		   */
+
 	   }
 	   
 	   private void initKeys() {

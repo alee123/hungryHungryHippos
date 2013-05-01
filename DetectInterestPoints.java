@@ -2,6 +2,7 @@ package net.sskikne.Facetrack;
 
 import georegression.struct.point.Point2D_F64;
 import georegression.struct.point.Point2D_I32;
+import georegression.struct.trig.Circle2D_F64;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -42,8 +43,9 @@ public class DetectInterestPoints implements analyzer {
     static int sizeH = 80;
     static int sizeW = 80;
     static int framenum = 0;
-    
-    
+    Circle2D_F64 mouth = null;
+    int mouthguess = 0;
+    Point2D_F64 mouthguesspt;
 	 DetectInterestPoints(){
 			rectangle.add(new Point2D_I32(rectW - sizeW, rectH - sizeH));
 			rectangle.add(new Point2D_I32(rectW + sizeW, rectH - sizeH));
@@ -82,21 +84,48 @@ public class DetectInterestPoints implements analyzer {
 			if( detector.hasScale() ) {
 				double scale = detector.getScale(i);
 				int radius = (int)(scale* BoofDefaults.SCALE_SPACE_CANONICAL_RADIUS);
-				if (inrectangle(pt)){
-					render.addCircle((int)pt.x,(int)pt.y,radius, Color.RED);
-					System.out.println("IN");
-				}else{
-					System.out.println("NOT IN");
-					render.addCircle((int)pt.x,(int)pt.y,radius, Color.BLACK);
+				if(mouth != null){
+					
+					if (mouth.center.distance(pt) < 3 && ((mouth.radius - radius) < 2 || (-mouth.radius + radius) < 2 )){
+						System.out.println("Here");
+						System.out.println("Was" + mouth.center);
+						System.out.println("Will be" + pt);
+						System.out.println(mouth.center.distance(pt));
+						mouth.center = pt;
+						mouth.radius = radius;
+					}
 				}
-				
+				if (inrectangle(pt)){
+					if (mouth == null){
+						if (radius > mouthguess){
+							mouthguesspt = pt;
+							mouthguess = radius;
+						}
+					}
+//					render.addCircle((int)pt.x,(int)pt.y,radius, Color.RED);
+					
+				}
+////				else{
+//					render.addCircle((int)pt.x,(int)pt.y,radius, Color.BLACK);
+//				}
+			
 			} else {
 				render.addPoint((int) pt.x, (int) pt.y);
 			}
 		}
+		if (mouth == null){
+			mouth = new Circle2D_F64();
+			mouth.center= mouthguesspt;
+			mouth.radius= mouthguess;
+		}
+		else{
+			render.addCircle((int)mouth.center.x ,(int)mouth.center.y, (int) mouth.radius , Color.WHITE);
+			
+		}
 		// make the circle's thicker
 		g2.setStroke(new BasicStroke(7));
  
+			
 		// just draw the features onto the input image
 		render.draw(g2);
 		framenum++;

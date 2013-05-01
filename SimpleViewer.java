@@ -175,7 +175,7 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
 
         		label.getGraphics().drawImage(detector2.analyze(x), 0, 0, width, height, null);
                
-        		label.getGraphics().drawImage(detector2.analyze(detector2.analyze(x)), 0, 0, width, height, null);
+//        		label.getGraphics().drawImage(detector2.analyze(detector.analyze(x)), 0, 0, width, height, null);
                
                 frame.recycle();
                 
