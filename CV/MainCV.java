@@ -10,5 +10,5 @@ public class MainCV {
                         new WebCam(new BinaryFactory(new InterestPointFactory(new Mouth())));
                 }
         });
-}
+	}
 }
