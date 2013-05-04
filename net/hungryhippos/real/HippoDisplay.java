@@ -68,6 +68,8 @@ public class HippoDisplay extends SimpleApplication {
 	private int score = 0;
 	private Mouth mouth = new Mouth(1,1,1);
 	
+	private WebCam webcam;
+	
 	private Timer timer = getTimer();
 	private int canEat = 0;
 	private ActionListener actionListener = new ActionListener() {
@@ -100,7 +102,7 @@ public class HippoDisplay extends SimpleApplication {
 	    /** Initialize the scene, materials, and physics space */
 	    WorldGenerator world = new WorldGenerator();
 	    world.initWorld();
-	    new WebCam(new BinaryFactory(new InterestPointFactory(mouth)));
+	    webcam = new WebCam(new BinaryFactory(new InterestPointFactory(mouth)));
 	}
    
    /* This is the update loop */
