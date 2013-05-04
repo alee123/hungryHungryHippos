@@ -3,6 +3,10 @@ package net.hungryhippos.real;
 import java.util.ArrayList;
 import java.util.Random;
 
+import CV.BinaryFactory;
+import CV.InterestPointFactory;
+import CV.WebCam;
+
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
@@ -96,6 +100,7 @@ public class HippoDisplay extends SimpleApplication {
 	    /** Initialize the scene, materials, and physics space */
 	    WorldGenerator world = new WorldGenerator();
 	    world.initWorld();
+	    new WebCam(new BinaryFactory(new InterestPointFactory(mouth)));
 	}
    
    /* This is the update loop */

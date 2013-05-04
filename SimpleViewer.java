@@ -12,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+
 import boofcv.abst.feature.detect.interest.ConfigFastHessian;
 import boofcv.abst.feature.tracker.PointTrack;
 import boofcv.abst.feature.tracker.PointTracker;

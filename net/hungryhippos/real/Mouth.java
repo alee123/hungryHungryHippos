@@ -15,7 +15,7 @@ public class Mouth {
 	private float y;
 	private float z;
 	private boolean open;
-	private boolean calibrated;
+	private boolean recalibrate;
 
 	/**
 	 * 
@@ -25,15 +25,15 @@ public class Mouth {
 		this.y = y;
 		this.z = z;
 		this.open = true;
-		this.calibrated = false;
+		this.recalibrate = false;
 	}
 	
 	public void setOpen(boolean open){
 		this.open = open;
 	}
 	
-	public void setCalibrated(boolean calibrated){
-		this.calibrated = calibrated;
+	public void setRecalibrate(boolean recalibrate){
+		this.recalibrate = recalibrate;
 	}
 
 	public void setX(float x) {
@@ -76,8 +76,8 @@ public class Mouth {
 		return open;
 	}
 
-	public boolean isCalibrated() {
-		return calibrated;
+	public boolean isRecalibrate() {
+		return recalibrate;
 	}
 	
 	public Vector3f getPosition() {
@@ -94,6 +94,15 @@ public class Mouth {
 
 	public float getZ() {
 		return z;
+	}
+
+	public void set(float x, float y, float f, boolean b, boolean c) {
+		setX(x);
+		setY(y);
+		setZ(f);
+		setOpen(b);
+		setRecalibrate(c);
+		
 	}
 
 }

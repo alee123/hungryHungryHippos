@@ -1,4 +1,4 @@
-	package net.sskikne.Facetrack;
+	package CV;
 
 import georegression.struct.point.Point2D_I32;
 

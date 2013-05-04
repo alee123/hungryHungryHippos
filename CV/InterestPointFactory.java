@@ -1,4 +1,4 @@
-package net.sskikne.Facetrack;
+package CV;
 
 import georegression.struct.point.Point2D_F64;
 import georegression.struct.point.Point2D_I32;
@@ -10,6 +10,8 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+
+import net.hungryhippos.real.Mouth;
 
 import boofcv.abst.feature.detect.interest.ConfigFastHessian;
 import boofcv.abst.feature.detect.interest.InterestPointDetector;
@@ -137,9 +139,9 @@ public class InterestPointFactory implements Analyzer {
 		if(mouth != null){
 			System.out.println("Hi shane");
 			render.addCircle((int)mouth.center.x ,(int)mouth.center.y, (int) mouth.radius , Color.WHITE);
-			
+			myMouth.set((float)mouth.center.x ,(float)mouth.center.y, (float) mouth.radius/100, true, false);
 		}
-		myMouth.set((float)mouth.center.x ,(float)mouth.center.y, (float) mouth.radius/100, true, false);
+		
 		
 		// make the circle's thicker
 		g2.setStroke(new BasicStroke(7));
