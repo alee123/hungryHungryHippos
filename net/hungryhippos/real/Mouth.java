@@ -1,3 +1,5 @@
+package net.hungryhippos.real;
+
 /**
  * 
  */
@@ -35,11 +37,11 @@ public class Mouth {
 	}
 
 	public void setX(float x) {
-		this.x = x;
+		this.x = x/640;
 	}
 
 	public void setY(float y) {
-		this.y = y;
+		this.y = y/480;
 	}
 
 	public void setZ(float z) {
@@ -55,19 +57,19 @@ public class Mouth {
 	}
 	
 	public Vector3f getPosition() {
-		return new Vector3f(x/640,y/480,z);
+		return new Vector3f(x,z,1-y);
 	}
 
 	public float getX() {
-		return x/640;
+		return x;
 	}
 
 	public float getY() {
-		return y/480;
+		return z;
 	}
 
 	public float getZ() {
-		return z;
+		return y;
 	}
 
 	public void set(float x, float y, float f, boolean b, boolean c) {
