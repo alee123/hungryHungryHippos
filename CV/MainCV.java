@@ -1,8 +1,4 @@
-package CV;
-
 import javax.swing.SwingUtilities;
-
-import net.hungryhippos.real.Mouth;
 
 public class MainCV {
 	public static void main(String args[]){

@@ -1,4 +1,3 @@
-package CV;
 
 import java.awt.image.BufferedImage;
 

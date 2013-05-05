@@ -1,8 +1,6 @@
 /**
  * 
  */
-package net.hungryhippos.real;
-
 import com.jme3.math.Vector3f;
 
 /**Tracks the position and attributes of the players mouth
@@ -37,39 +35,15 @@ public class Mouth {
 	}
 
 	public void setX(float x) {
-		if (x>=0 && x<=1){
-			this.x = x;
-		}
-		else if (x>1){
-			this.x = 1;
-		}
-		else if (x<0){
-			this.x = 0;
-		}
+		this.x = x;
 	}
 
 	public void setY(float y) {
-		if (y>=0 && y<=1){
-			this.y = y;
-		}
-		else if (y>1){
-			this.y = 1;
-		}
-		else if (y<0){
-			this.y = 0;
-		}
+		this.y = y;
 	}
 
 	public void setZ(float z) {
-		if (z>=0 && z<=1){
-			this.z = z;
-		}
-		else if (z>1){
-			this.z = 1;
-		}
-		else if (z<0){
-			this.z = 0;
-		}
+		this.z = z;
 	}
 
 	public boolean isOpen() {
@@ -81,15 +55,15 @@ public class Mouth {
 	}
 	
 	public Vector3f getPosition() {
-		return new Vector3f(x,y,z);
+		return new Vector3f(x/640,y/480,z);
 	}
 
 	public float getX() {
-		return x;
+		return x/640;
 	}
 
 	public float getY() {
-		return y;
+		return y/480;
 	}
 
 	public float getZ() {

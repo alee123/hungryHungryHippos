@@ -1,11 +1,6 @@
-package net.hungryhippos.real;
  
 import java.util.ArrayList;
 import java.util.Random;
-
-import CV.BinaryFactory;
-import CV.InterestPointFactory;
-import CV.WebCam;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
@@ -31,7 +26,7 @@ import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
 import com.jme3.system.Timer;
  
-/**Hungry Hungy Hippos.
+/**Hungry Hungry Hippos.
  * 
  * @author vcoleman, rboy, alee, dvermilya
  * @author adapted from base code by double1984, updated by zathras
@@ -69,6 +64,8 @@ public class HippoDisplay extends SimpleApplication {
 	private Mouth mouth = new Mouth(1,1,1);
 	
 	private WebCam webcam;
+	private InterestPointFactory interestPoint;
+	
 	
 	private Timer timer = getTimer();
 	private int canEat = 0;
@@ -102,7 +99,8 @@ public class HippoDisplay extends SimpleApplication {
 	    /** Initialize the scene, materials, and physics space */
 	    WorldGenerator world = new WorldGenerator();
 	    world.initWorld();
-	    webcam = new WebCam(new BinaryFactory(new InterestPointFactory(mouth)));
+	    interestPoint = new InterestPointFactory(mouth);
+	    webcam = new WebCam(new BinaryFactory(interestPoint));
 	}
    
    /* This is the update loop */
@@ -122,15 +120,16 @@ public class HippoDisplay extends SimpleApplication {
 		   addScore(hippo_phy.getRecentCollisions().eatBalls());
 		   canEat = 0;
        }
-       
+       mouth = interestPoint.myMouth;
        Vector3f hippo_pos = mouth.getPosition();
+       System.out.println(mouth.getPosition());
        hippo_pos = hippo_pos.mult(wallSide*2).subtract(new Vector3f(wallSide,wallSide,wallSide));
        System.out.println(hippo_pos);
        hippo_node.setLocalTranslation(hippo_pos);
        //hippo_node.move(hippo_pos.subtract(hippo_node.getLocalTranslation()));
-       mouth.setX(mouth.getX() - .01f);
-       mouth.setY(mouth.getY() - .01f);
-       mouth.setZ(mouth.getZ() - .01f);
+//       mouth.setX(mouth.getX() - .01f);
+//       mouth.setY(mouth.getY() - .01f);
+//       mouth.setZ(mouth.getZ() - .01f);
    }
    
    private void addScore(int i){

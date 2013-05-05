@@ -1,4 +1,3 @@
-package CV;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -17,7 +16,7 @@ public class BinaryFactory implements Analyzer {
 	boolean pass = false;
 	Analyzer nextFactory;
 	
-	public BinaryFactory (Analyzer next){
+	BinaryFactory (Analyzer next){
 		pass = true;
 		nextFactory = next;
 		

@@ -1,6 +1,3 @@
-package net.hungryhippos.real;
-
-import net.hungryhippos.real.eating.RecentCollisions;
 
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
