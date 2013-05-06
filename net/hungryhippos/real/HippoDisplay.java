@@ -1,17 +1,16 @@
+package net.hungryhippos.real;
  
 import java.util.ArrayList;
 import java.util.Random;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.asset.TextureKey;
 import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.collision.PhysicsCollisionObject;
-import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
-import com.jme3.light.PointLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
@@ -20,13 +19,15 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
+import com.jme3.scene.plugins.blender.BlenderModelLoader;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
 import com.jme3.system.Timer;
+import com.jme3.texture.Texture;
  
-/**Hungry Hungry Hippos.
+/**Hungry Hungy Hippos.
  * 
  * @author vcoleman, rboy, alee, dvermilya
  * @author adapted from base code by double1984, updated by zathras
@@ -46,6 +47,8 @@ public class HippoDisplay extends SimpleApplication {
 	Material red_ball_mat;
 	Material blue_ball_mat;
 	Material green_ball_mat;
+	Material stone_mat;
+	Material hippo_mat;
  
 	/** Prepare geometries and physical nodes for bricks and cannon balls. */
 	private RigidBodyControl    ball_phy;
@@ -53,7 +56,7 @@ public class HippoDisplay extends SimpleApplication {
 	private static final Sphere sphere;
 	private static final Box hippo;
 	private RigidBodyControl    wall_phy;
-	private Node hippo_node;
+	private Spatial hippo_geo;
 	  
 	 
 	/** dimensions used for transparent walls */
@@ -62,10 +65,6 @@ public class HippoDisplay extends SimpleApplication {
 	
 	private int score = 0;
 	private Mouth mouth = new Mouth(1,1,1);
-	
-	private WebCam webcam;
-	private InterestPointFactory interestPoint;
-	
 	
 	private Timer timer = getTimer();
 	private int canEat = 0;
@@ -99,37 +98,28 @@ public class HippoDisplay extends SimpleApplication {
 	    /** Initialize the scene, materials, and physics space */
 	    WorldGenerator world = new WorldGenerator();
 	    world.initWorld();
-	    interestPoint = new InterestPointFactory(mouth);
-	    webcam = new WebCam(new BinaryFactory(interestPoint));
 	}
    
    /* This is the update loop */
    @Override
    public void simpleUpdate(float tpf) {
        if (timer.getTime() > 200){
-    	   /*if (canEat > 0){
+    	   if (canEat > 0){
     		   int eaten = hippo_phy.getRecentCollisions().eatBalls();
     		   addScore(eaten);
     		   System.out.println(getScore());
     		   canEat--;
-    	   }*/
+    	   }
     	   hippo_phy.getRecentCollisions().timeOutList();
     	   timer.reset();
        }
-	   if (canEat>0) {
-		   addScore(hippo_phy.getRecentCollisions().eatBalls());
-		   canEat = 0;
-       }
-       mouth = interestPoint.myMouth;
+       
        Vector3f hippo_pos = mouth.getPosition();
-       System.out.println(mouth.getPosition());
-       hippo_pos = hippo_pos.mult(wallSide*2).subtract(new Vector3f(wallSide,wallSide,wallSide));
-       System.out.println(hippo_pos);
-       hippo_node.setLocalTranslation(hippo_pos);
-       //hippo_node.move(hippo_pos.subtract(hippo_node.getLocalTranslation()));
-//       mouth.setX(mouth.getX() - .01f);
-//       mouth.setY(mouth.getY() - .01f);
-//       mouth.setZ(mouth.getZ() - .01f);
+       hippo_geo.move(hippo_pos.subtract((hippo_geo.getLocalTranslation())));
+       mouth.setX(hippo_pos.x + .2f);
+       mouth.setY(hippo_pos.y + .2f);
+       mouth.setZ(hippo_pos.z + .2f);
+       
    }
    
    private void addScore(int i){
@@ -143,7 +133,7 @@ public class HippoDisplay extends SimpleApplication {
    private class WorldGenerator{
 	   
 	   public void initWorld() {
-	   		initLighting();
+		    initLighting();
 		   	initMaterials();
 		    initWalls();
 		    initMarbles();
@@ -153,9 +143,18 @@ public class HippoDisplay extends SimpleApplication {
 	   
 	   	/** Initialize the materials used in this scene. */
 		public void initMaterials() {
+			//assetManager.registerLoader(BlenderModelLoader.class, "blend");
+
+			
 			wall_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		    wall_mat.setColor("Color", new ColorRGBA(1,1,1,0.1f));
-		    wall_mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);    		
+		    wall_mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
+		    
+		    stone_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+		    TextureKey key2 = new TextureKey("Textures/Terrain/Rock/Rock.PNG");
+		    key2.setGenerateMips(true);
+		    Texture tex2 = assetManager.loadTexture(key2);
+		    stone_mat.setTexture("ColorMap", tex2);
 		  
 		    red_ball_mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");  	
 		    red_ball_mat.setBoolean("UseMaterialColors", true);
@@ -173,6 +172,7 @@ public class HippoDisplay extends SimpleApplication {
 	    	green_ball_mat.setColor("Ambient", ColorRGBA.Green);   // ... color of this object
 	    	green_ball_mat.setColor("Diffuse", ColorRGBA.White);   // ... color of light being reflected
 		    
+	    	hippo_mat = assetManager.loadMaterial( "Materials/Frog/frogSkin.j3m");
 		}
 	 
 	  /** This loop builds a wall out of individual bricks. **/
@@ -233,7 +233,7 @@ public class HippoDisplay extends SimpleApplication {
 					  Vector3f vel = new Vector3f(i, j, k).mult(2);
 					  Vector3f pos = new Vector3f(i,j,k);
 					  index = randomGenerator.nextInt(materials.size());
-					  makeMarble(vel, pos, materials.get(index));
+					  makeMarble(vel, pos, stone_mat); //materials.get(index));
 				  }
 			  }
 		  }
@@ -262,15 +262,13 @@ public class HippoDisplay extends SimpleApplication {
 	  
 	   
 	   public void initHippo(){
-		   Geometry hippo_geo = new Geometry("hippo", hippo);
-		   hippo_geo.setMaterial(red_ball_mat);
-		   hippo_node = new Node("hippo");
-		   hippo_node.attachChild(hippo_geo);
-		   Vector3f hippo_loc = new Vector3f(3,3,3);
-		   hippo_node.setLocalTranslation(hippo_loc);
-		   hippo_phy = new HippoControl(new BoxCollisionShape(new Vector3f(1,1,1)), 3, bulletAppState);
-		   hippo_node.addControl(hippo_phy);
-		   rootNode.attachChild(hippo_node);
+		   hippo_geo = assetManager.loadModel( "Models/Frog/FrogBody.mesh.xml");
+		   rootNode.attachChild(hippo_geo);
+		   hippo_geo.setMaterial(hippo_mat);
+   		   Vector3f hippo_loc = new Vector3f(3,3,3);
+		   hippo_geo.setLocalTranslation(hippo_loc);
+		   hippo_phy = new HippoControl(3, bulletAppState);
+		   hippo_geo.addControl(hippo_phy);
 		   bulletAppState.getPhysicsSpace().add(hippo_phy);
 	   }
 	   
