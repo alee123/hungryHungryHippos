@@ -49,7 +49,7 @@ public class HippoDisplay extends SimpleApplication {
 	Material red_ball_mat;
 	Material blue_ball_mat;
 	Material green_ball_mat;
-	Material hippp_mat;
+	Material hippo_mat;
  
 	/** Prepare geometries and physical nodes for bricks and cannon balls. */
 	private RigidBodyControl    ball_phy;
