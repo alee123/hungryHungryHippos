@@ -1,3 +1,5 @@
+package FullGame;
+
  
 import java.util.ArrayList;
 import java.util.Random;
@@ -122,8 +124,16 @@ public class HippoDisplay extends SimpleApplication {
        }
        mouth = interestPoint.myMouth;
        Vector3f hippo_pos = mouth.getPosition();
+       hippo_pos.setY(0);
        System.out.println(mouth.getPosition());
-       hippo_pos = hippo_pos.mult(wallSide*2).subtract(new Vector3f(wallSide,wallSide,wallSide));
+       hippo_pos = hippo_pos.mult(wallSide*3).subtract(new Vector3f(wallSide,wallSide,wallSide));
+
+       if (hippo_pos.getZ()>wallSide) { hippo_pos.setZ(wallSide);}
+       else if (hippo_pos.getZ()<-1*wallSide) { hippo_pos.setZ(-1*wallSide);}
+
+       if (hippo_pos.getX()>wallSide) { hippo_pos.setX(wallSide);}
+       else if (hippo_pos.getX()<-1*wallSide) { hippo_pos.setX(-1*wallSide);}
+       
        System.out.println(hippo_pos);
        hippo_node.setLocalTranslation(hippo_pos);
        //hippo_node.move(hippo_pos.subtract(hippo_node.getLocalTranslation()));

@@ -1,3 +1,5 @@
+package FullGame;
+
 import javax.swing.SwingUtilities;
 
 public class MainCV {

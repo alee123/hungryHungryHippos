@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.hungryhippos.real.eating;
+package FullGame;
 
 import java.util.LinkedList;
 import java.util.List;

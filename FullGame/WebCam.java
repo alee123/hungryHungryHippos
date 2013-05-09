@@ -1,4 +1,4 @@
-	package CV;
+	package FullGame;
 
 import georegression.struct.point.Point2D_I32;
 

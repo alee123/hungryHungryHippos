@@ -1,3 +1,5 @@
+package FullGame;
+
 
 import java.awt.image.BufferedImage;
 
