@@ -27,7 +27,6 @@ import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
 import com.jme3.system.Timer;
- 
 /**Hungry Hungry Hippos.
  * 
  * @author vcoleman, rboy, alee, dvermilya
