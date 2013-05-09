@@ -23,6 +23,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
@@ -47,6 +48,7 @@ public class HippoDisplay extends SimpleApplication {
 	Material red_ball_mat;
 	Material blue_ball_mat;
 	Material green_ball_mat;
+	Material hippo_mat;
  
 	/** Prepare geometries and physical nodes for bricks and cannon balls. */
 	private RigidBodyControl    ball_phy;
@@ -55,6 +57,7 @@ public class HippoDisplay extends SimpleApplication {
 	private static final Box hippo;
 	private RigidBodyControl    wall_phy;
 	private Node hippo_node;
+	private Spatial hippo_geo;
 	  
 	 
 	/** dimensions used for transparent walls */
@@ -181,6 +184,8 @@ public class HippoDisplay extends SimpleApplication {
 		    green_ball_mat.setBoolean("UseMaterialColors",true);  // Set some parameters, e.g. blue.
 	    	green_ball_mat.setColor("Ambient", ColorRGBA.Green);   // ... color of this object
 	    	green_ball_mat.setColor("Diffuse", ColorRGBA.White);   // ... color of light being reflected
+	    	
+	    	hippo_mat = assetManager.loadMaterial( "Materials/Frog/frogSkin.j3m");
 		    
 		}
 	 
@@ -271,16 +276,15 @@ public class HippoDisplay extends SimpleApplication {
 	  
 	   
 	   public void initHippo(){
-		   Geometry hippo_geo = new Geometry("hippo", hippo);
-		   hippo_geo.setMaterial(red_ball_mat);
-		   hippo_node = new Node("hippo");
-		   hippo_node.attachChild(hippo_geo);
-		   Vector3f hippo_loc = new Vector3f(3,3,3);
-		   hippo_node.setLocalTranslation(hippo_loc);
-		   hippo_phy = new HippoControl(new BoxCollisionShape(new Vector3f(1,1,1)), 3, bulletAppState);
-		   hippo_node.addControl(hippo_phy);
-		   rootNode.attachChild(hippo_node);
-		   bulletAppState.getPhysicsSpace().add(hippo_phy);
+		   hippo_geo = assetManager.loadModel( "Models/Frog/FrogBody.mesh.xml");
+		   rootNode.attachChild(hippo_geo);
+		   hippo_geo.setMaterial(hippo_mat);
+   		   Vector3f hippo_loc = new Vector3f(3,3,3);
+		   hippo_geo.setLocalTranslation(hippo_loc);
+		   hippo_phy = new HippoControl(3, bulletAppState);
+		   //System.out.println(hippo_phy);
+		   //hippo_geo.addControl(hippo_phy);
+		   //bulletAppState.getPhysicsSpace().add(hippo_phy);
 	   }
 	   
 	   public void initLighting(){
