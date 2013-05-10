@@ -83,7 +83,6 @@ public class InterestPointFactory implements Analyzer {
     public BufferedImage analyze( BufferedImage bufferedImage )
 	{
     	ImageUInt8 input = new ImageUInt8(bufferedImage.getWidth(),bufferedImage.getHeight());
-    	System.out.println("Image Width " + bufferedImage.getWidth() + " Image Height " + bufferedImage.getHeight());
 
     	ConvertBufferedImage.convertFrom(bufferedImage, input);
       
@@ -101,12 +100,7 @@ public class InterestPointFactory implements Analyzer {
 				double scale = detector.getScale(i);	
 				int radius = (int)(scale* BoofDefaults.SCALE_SPACE_CANONICAL_RADIUS);
 				if(mouth != null){
-					System.out.println("Radius " + mouth.radius + " Center " + mouth.center);
 					if (mouth.center.distance(pt) >0 && mouth.center.distance(pt) < 20 && ((mouth.radius - radius) < 1.0 || (-mouth.radius + radius) < 1.0 )){
-						System.out.println("Here");
-						System.out.println("Was" + mouth.center);
-						System.out.println("Will be" + pt);
-						System.out.println(mouth.center.distance(pt));
 						mouth.center = new Point2D_F64(pt.x, pt.y);
 						mouth.radius = radius;
 					}
@@ -115,7 +109,6 @@ public class InterestPointFactory implements Analyzer {
 					if (mouth == null){
 						if (radius > mouthguess){
 
-							System.out.println("Here1");
 							mouthguesspt = pt;
 							mouthguess = radius;
 						}
@@ -140,7 +133,7 @@ public class InterestPointFactory implements Analyzer {
 			render.addCircle((int)mouth.center.x ,(int)mouth.center.y, (int) mouth.radius , Color.WHITE);
 			
 		}
-		System.out.println(myMouth);
+
 		if (mouth != null){
 			myMouth.set((float)mouth.center.x ,(float)mouth.center.y, (float) mouth.radius/100, true, false);
 		}

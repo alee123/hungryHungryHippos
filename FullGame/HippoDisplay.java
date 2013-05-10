@@ -113,12 +113,6 @@ public class HippoDisplay extends SimpleApplication {
    @Override
    public void simpleUpdate(float tpf) {
        if (timer.getTime() > 200){
-    	   /*if (canEat > 0){
-    		   int eaten = hippo_phy.getRecentCollisions().eatBalls();
-    		   addScore(eaten);
-    		   System.out.println(getScore());
-    		   canEat--;
-    	   }*/
     	   hippo_phy.getRecentCollisions().timeOutList();
     	   timer.reset();
        }
@@ -126,6 +120,7 @@ public class HippoDisplay extends SimpleApplication {
 		   addScore(hippo_phy.getRecentCollisions().eatBalls());
 		   canEat = 0;
        }
+	   System.out.println("score: "+ score);
        mouth = interestPoint.myMouth;
        Vector3f hippo_pos = mouth.getPosition();
        hippo_pos.setY(0);
@@ -138,12 +133,7 @@ public class HippoDisplay extends SimpleApplication {
        if (hippo_pos.getX()>wallSide) { hippo_pos.setX(wallSide);}
        else if (hippo_pos.getX()<-1*wallSide) { hippo_pos.setX(-1*wallSide);}
        
-       System.out.println(hippo_pos);
        hippo_node.setLocalTranslation(hippo_pos);
-       //hippo_node.move(hippo_pos.subtract(hippo_node.getLocalTranslation()));
-//       mouth.setX(mouth.getX() - .01f);
-//       mouth.setY(mouth.getY() - .01f);
-//       mouth.setZ(mouth.getZ() - .01f);
    }
    
    private void addScore(int i){

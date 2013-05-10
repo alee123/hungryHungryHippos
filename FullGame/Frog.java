@@ -92,7 +92,7 @@ public class Frog {
     	rightPuple.rotate(-90*FastMath.DEG_TO_RAD, 0f, 0f);
     	
         /** Create a pivot node at (0,0,0) and attach it to the root node */
-        Node pivot = new Node("pivot");
+        Node pivot = new Node("hippo");
  
         /** Attach head, mouth, and eyes to the *pivot* node. */
         pivot.attachChild(top_geo);
