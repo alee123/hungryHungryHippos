@@ -1,5 +1,4 @@
-package FullGame;
-
+package net.sskikne.Facetrack;
 
 import georegression.struct.point.Point2D_F64;
 import georegression.struct.point.Point2D_I32;
@@ -32,7 +31,7 @@ public class InterestPointFactory implements Analyzer {
 	 
 	
 	static InterestPointDetector<ImageUInt8> detector = FactoryInterestPoint.fastHessian(
-				new ConfigFastHessian(10, 2, 5, 2, 9, 3, 4));
+				new ConfigFastHessian(10, 2, 1, 2, 9, 3, 4));
 	 
 	
 
@@ -52,6 +51,7 @@ public class InterestPointFactory implements Analyzer {
     boolean pass = false;
 	Analyzer nextFactory;
 	
+	boolean readNext = true;
     
     InterestPointFactory(Analyzer next, Mouth mouth2){
     	myMouth = mouth2;
@@ -80,49 +80,128 @@ public class InterestPointFactory implements Analyzer {
 		return false;
 	} 
 	
-    public BufferedImage analyze( BufferedImage bufferedImage )
+    public BufferedImage analyze( BufferedImage workImage, BufferedImage showImage)
 	{
-    	ImageUInt8 input = new ImageUInt8(bufferedImage.getWidth(),bufferedImage.getHeight());
+    	ImageUInt8 input = new ImageUInt8(workImage.getWidth(),workImage.getHeight());
+    	System.out.println("Image Width " + workImage.getWidth() + " Image Height " + workImage.getHeight());
 
-    	ConvertBufferedImage.convertFrom(bufferedImage, input);
+    	ConvertBufferedImage.convertFrom(workImage, input);
       
     	detector.detect(input);
     	
-		Graphics2D g2 = bufferedImage.createGraphics();
+		Graphics2D g2 = showImage.createGraphics();
 		FancyInterestPointRender render = new FancyInterestPointRender();
 
 		VisualizeShapes.drawPolygon(rectangle, true, g2);
- 
+		
+		if (myMouth.isRecalibrate()){
+			recalibrate();
+		}
+		
+		configure(render);
+
+		g2.setStroke(new BasicStroke(7));
+ 			
+		// just draw the features onto the input image
+		render.draw(g2);
+		framenum++;
+
+		if (pass){
+			return nextFactory.analyze(workImage, showImage);
+		}
+		return showImage;
+		
+	}
+
+
+	private void configure(FancyInterestPointRender render) {
+		Point2D_F64 closestpt = null;
+		double closestDist = 800;
+		int closestptIndex = -1;
+		float closestRadius = 0;
+		
+		Point2D_F64 closestBiggest = null;
+		int closestBIndex = -1;
+		double closestBDist = 800;
+		float closestBRadius = 0;
+		
+		
+		for (int i = 0; i < detector.getNumberOfFeatures(); i++){
+			Point2D_F64 pt = detector.getLocation(i);
+
+			double scale = detector.getScale(i);
+			int radius = (int)(scale* BoofDefaults.SCALE_SPACE_CANONICAL_RADIUS);
+			if (radius > 17){
+				if(mouth != null){
+					if (mouth.center.distance(pt) < 100){
+						if (mouth.center.distance(pt) < closestDist){
+							closestpt = pt;
+							closestptIndex = i;
+							closestDist = mouth.center.distance(pt);
+							closestRadius = radius;
+						}
+						if (mouth.center.distance(pt) < closestBDist && (mouth.radius-radius < 10 || radius - mouth.radius < 10)){
+							closestBiggest = pt;
+							closestBIndex = i;
+							closestBDist = mouth.center.distance(pt);
+							closestBRadius = radius;
+							
+						}
+					}	
+				}
+			}
+
+		}
+		
+		
+
+		
 		for( int i = 0; i < detector.getNumberOfFeatures(); i++ ) {
 			Point2D_F64 pt = detector.getLocation(i);
 			// note how it checks the capabilities of the detector
 			if( detector.hasScale() ) {
 				double scale = detector.getScale(i);	
 				int radius = (int)(scale* BoofDefaults.SCALE_SPACE_CANONICAL_RADIUS);
-				if(mouth != null){
-					if (mouth.center.distance(pt) >0 && mouth.center.distance(pt) < 20 && ((mouth.radius - radius) < 1.0 || (-mouth.radius + radius) < 1.0 )){
-						mouth.center = new Point2D_F64(pt.x, pt.y);
-						mouth.radius = radius;
-					}
-				}
-				if (inrectangle(pt)){
-					if (mouth == null){
-						if (radius > mouthguess){
-
-							mouthguesspt = pt;
-							mouthguess = radius;
+//				if(mouth != null){
+//					System.out.println("Radius " + mouth.radius + " Center " + mouth.center);
+//					if (mouth.center.distance(pt) >0 && mouth.center.distance(pt) < 20 && ((mouth.radius - radius) < 1.0 || (-mouth.radius + radius) < 1.0 )){
+//						System.out.println("Here");
+//						System.out.println("Was" + mouth.center);
+//						System.out.println("Will be" + pt);
+//						System.out.println(mouth.center.distance(pt));
+//						mouth.center = new Point2D_F64(pt.x, pt.y);
+//						mouth.radius = radius;
+//					}
+	//				}
+				if (radius > 17){
+					if (inrectangle(pt)){
+						if (mouth == null){
+							if (radius > mouthguess){
+	
+								System.out.println("Here1");
+								mouthguesspt = pt;
+								mouthguess = radius;
+							}
 						}
+						render.addCircle((int)pt.x,(int)pt.y,radius, Color.RED);
+						
+					}else{
+						render.addCircle((int)pt.x,(int)pt.y,radius, Color.BLACK);
 					}
-					render.addCircle((int)pt.x,(int)pt.y,radius, Color.RED);
-					
-				}else{
-				render.addCircle((int)pt.x,(int)pt.y,radius, Color.BLACK);
+				
+				} else {
+					//render.addPoint((int) pt.x, (int) pt.y);
 				}
-			
-			} else {
-				render.addPoint((int) pt.x, (int) pt.y);
 			}
 		}
+//		if (closestpt != null){
+//			render.addCircle((int)closestpt.x ,(int)closestpt.y,(int) closestRadius , Color.WHITE);
+//		}
+//		
+//		if (closestBiggest != null){
+//			render.addCircle((int)closestBiggest.x ,(int)closestBiggest.y, (int) closestBRadius , Color.WHITE);
+//		}
+
 		if (mouth == null && mouthguesspt != null && mouthguess != 0.0){
 			
 			mouth = new Circle2D_F64();
@@ -130,23 +209,29 @@ public class InterestPointFactory implements Analyzer {
 			mouth.radius= mouthguess;
 		}
 		if(mouth != null){
+			if (closestBiggest != null){
+				mouth.center = mouth.center = new Point2D_F64(closestBiggest.x, closestBiggest.y);
+				mouth.radius = closestBRadius;
+				readNext = false;
+			} else if (closestpt != null) {
+				mouth.center = new Point2D_F64(closestpt.x, closestpt.y); 
+				mouth.radius = closestRadius;
+				readNext = true;
+			
+			}
+			System.out.println("Mouth: "+ mouth.radius);
 			render.addCircle((int)mouth.center.x ,(int)mouth.center.y, (int) mouth.radius , Color.WHITE);
 			
 		}
-
+		System.out.println(myMouth);
 		if (mouth != null){
 			myMouth.set((float)mouth.center.x ,(float)mouth.center.y, (float) mouth.radius/100, true, false);
 		}
 		// make the circle's thicker
-		g2.setStroke(new BasicStroke(7));
- 			
-		// just draw the features onto the input image
-		render.draw(g2);
-		framenum++;
-		if (pass){
-			return nextFactory.analyze(bufferedImage);
-		}
-		return bufferedImage;
+	}
+	
+	public void recalibrate(){
+		mouth = null;
 	}
  }
 

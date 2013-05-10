@@ -1,4 +1,4 @@
-package FullGame;
+package net.sskikne.Facetrack;
 
 import javax.swing.SwingUtilities;
 
@@ -7,7 +7,8 @@ public class MainCV {
     	
         SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                        new WebCam(new BinaryFactory(new InterestPointFactory(new Mouth(.5f,.5f,.5f))));
+                       new WebCam(new BinaryFactory(new InterestPointFactory(new Mouth(.5f,.5f,.5f))));
+
                 }
         });
 	}

@@ -1,9 +1,11 @@
-package FullGame;
+package net.sskikne.Facetrack;
+
+import georegression.struct.point.Vector2D_F32;
 
 /**
  * 
  */
-import com.jme3.math.Vector3f;
+//import com.jme3.math.Vector3f;
 
 /**Tracks the position and attributes of the players mouth
  * @author rboy, vcoleman
@@ -56,8 +58,8 @@ public class Mouth {
 		return recalibrate;
 	}
 	
-	public Vector3f getPosition() {
-		return new Vector3f(x,z,1-y);
+	public Vector2D_F32 getPosition() {
+		return null;//new Vector2D_F32(x,z,1-y);
 	}
 
 	public float getX() {

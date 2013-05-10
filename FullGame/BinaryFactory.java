@@ -1,5 +1,4 @@
-package FullGame;
-
+package net.sskikne.Facetrack;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -16,7 +15,7 @@ import boofcv.struct.image.ImageUInt8;
 
 public class BinaryFactory implements Analyzer {
 	boolean pass = false;
-	Analyzer nextFactory;
+	public Analyzer nextFactory;
 	
 	BinaryFactory (Analyzer next){
 		pass = true;
@@ -24,9 +23,9 @@ public class BinaryFactory implements Analyzer {
 		
 	}
 	@Override
-	public BufferedImage analyze(BufferedImage bufferedImage) {
+	public BufferedImage analyze(BufferedImage workImage, BufferedImage showImage) {
 		// convert into a usable format
-		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(bufferedImage, null, ImageFloat32.class);
+		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(workImage, null, ImageFloat32.class);
 		ImageUInt8 binary = new ImageUInt8(input.width,input.height);
 		ImageSInt32 labeli = new ImageSInt32(input.width,input.height);
  
@@ -34,8 +33,8 @@ public class BinaryFactory implements Analyzer {
 		double mean = ImageStatistics.mean(input);
  
 		// create a binary image by thresholding
-		ThresholdImageOps.threshold(input,binary,(float)(mean -50.0),true);
- 
+		ThresholdImageOps.threshold(input,binary,(float)(mean -70.0),true);
+		System.out.println(mean);
 		// remove small blobs through erosion and dilation
 		// The null in the input indicates that it should internally declare the work image it needs
 		// this is less efficient, but easier to code.
@@ -57,7 +56,7 @@ public class BinaryFactory implements Analyzer {
 //				input.width,input.height,null);
  
 		if (pass){
-			return nextFactory.analyze(visualFiltered);
+			return nextFactory.analyze(visualFiltered, showImage);
 		}
 		return visualFiltered;
 	}

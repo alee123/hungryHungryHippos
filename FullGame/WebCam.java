@@ -1,4 +1,4 @@
-	package FullGame;
+package net.sskikne.Facetrack;
 
 import georegression.struct.point.Point2D_I32;
 
@@ -161,8 +161,8 @@ public class WebCam extends WindowAdapter implements CaptureCallback{
                 // draw the new frame onto the JLabel
         		BufferedImage x = frame.getBufferedImage();
 
-        		label.getGraphics().drawImage(detector.analyze(x), 0, 0, width, height, null);
-               
+        		label.getGraphics().drawImage(detector.analyze(x, x), 0, 0, width, height, null);
+        		
                 frame.recycle();
                 
         }

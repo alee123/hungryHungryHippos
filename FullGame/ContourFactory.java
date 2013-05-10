@@ -1,5 +1,4 @@
-package FullGame;
-
+package net.sskikne.Facetrack;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -24,9 +23,9 @@ public class ContourFactory implements Analyzer {
 		
 	}
 	@Override
-	public BufferedImage analyze(BufferedImage bufferedImage) {
+	public BufferedImage analyze(BufferedImage workImage, BufferedImage showImage) {
 		// convert into a usable format
-		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(bufferedImage, null, ImageFloat32.class);
+		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(workImage, null, ImageFloat32.class);
 		ImageUInt8 binary = new ImageUInt8(input.width,input.height);
 		ImageSInt32 labeli = new ImageSInt32(input.width,input.height);
  
@@ -57,7 +56,7 @@ public class ContourFactory implements Analyzer {
 				input.width,input.height,null);
  
 		if (pass){
-			return nextFactory.analyze(visualContour);
+			return nextFactory.analyze(visualContour, showImage );
 		}
 		return visualContour;
 	}
