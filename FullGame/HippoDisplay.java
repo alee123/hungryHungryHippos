@@ -106,7 +106,7 @@ public class HippoDisplay extends SimpleApplication {
 	    WorldGenerator world = new WorldGenerator();
 	    world.initWorld();
 	    interestPoint = new InterestPointFactory(mouth);
-	    //webcam = new WebCam(new BinaryFactory(interestPoint));
+	    webcam = new WebCam(new BinaryFactory(interestPoint));
 	}
    
    /* This is the update loop */
@@ -187,7 +187,7 @@ public class HippoDisplay extends SimpleApplication {
 	    	green_ball_mat.setColor("Ambient", ColorRGBA.Green);   // ... color of this object
 	    	green_ball_mat.setColor("Diffuse", ColorRGBA.White);   // ... color of light being reflected
 	    	
-	    	hippo_mat = assetManager.loadMaterial( "Materials/Frog/frogSkin.j3m");
+	    	//hippo_mat = assetManager.loadMaterial( "Materials/Frog/frogSkin.j3m");
 		    
 		}
 	 

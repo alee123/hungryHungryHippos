@@ -30,6 +30,7 @@ public class ClientMain extends SimpleApplication {
 	Material mat;
 	ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(4);
 	private List<Vector3f> ballPos = new ArrayList<Vector3f>();
+	private static final float wallThickness = .2f;
 	
 	static {
 		/** Initialize the marble geometry */
@@ -49,7 +50,8 @@ public class ClientMain extends SimpleApplication {
 		initMaterials();
 		Client myClient = null;
 		try {
-			myClient = Network.connectToServer("localhost", 6143);
+			//change IP address to that of the computer hosting the server
+			myClient = Network.connectToServer("192.168.48.38",6143);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -130,11 +132,33 @@ public class ClientMain extends SimpleApplication {
 			    }
 		 }
 		 
-		 public void initWalls(float sideLen) {
-			    Box level = new Box(Vector3f.ZERO, sideLen, 1, sideLen);   
+		 public void initWalls(float wallSide) {
+			    /*Box level = new Box(Vector3f.ZERO, sideLen, 1, sideLen);   
 			
 			    Vector3f bottom_loc = new Vector3f(0,-1*sideLen,0);
+			    makeWall(bottom_loc, level);  */
+			 	Box facing = new Box(Vector3f.ZERO, wallSide, wallSide, wallThickness);
+			    Box side = new Box(Vector3f.ZERO, wallThickness, wallSide, wallSide);
+			    Box level = new Box(Vector3f.ZERO, wallSide, wallThickness, wallSide); 
+
+			    Vector3f front_loc = new Vector3f(0, 0, wallSide);
+			    makeWall(front_loc, facing);
+
+			    Vector3f back_loc = new Vector3f(0, 0, -1*wallSide);
+			    makeWall(back_loc, facing);
+
+			    Vector3f left_loc = new Vector3f(-1*wallSide, 0, 0);
+			    makeWall(left_loc, side);    
+			    
+			    Vector3f right_loc = new Vector3f(wallSide, -0, 0);
+			    makeWall(right_loc, side); 
+
+			    Vector3f top_loc = new Vector3f(0,wallSide,0);
+			    makeWall(top_loc, level);    
+
+			    Vector3f bottom_loc = new Vector3f(0,-1*wallSide,0);
 			    makeWall(bottom_loc, level);  
+			    
 			  }
 		 
 		 /* This method creates one individual physical wall. */
