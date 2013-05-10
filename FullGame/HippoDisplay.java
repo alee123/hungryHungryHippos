@@ -1,5 +1,13 @@
 package FullGame;
 
+import de.lessvoid.nifty.builder.*;
+import de.lessvoid.nifty.*;
+import de.lessvoid.nifty.builder.PanelBuilder;
+import de.lessvoid.nifty.builder.ScreenBuilder;
+import de.lessvoid.nifty.controls.button.builder.ButtonBuilder;
+import de.lessvoid.nifty.elements.Element;
+import de.lessvoid.nifty.elements.render.TextRenderer;
+import de.lessvoid.nifty.screen.*;
  
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +30,7 @@ import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import com.jme3.niftygui.NiftyJmeDisplay;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -30,6 +39,8 @@ import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
 import com.jme3.system.Timer;
+import com.jme3.input.*;
+import com.jme3.input.controls.*;
 /**Hungry Hungry Hippos.
  * 
  * @author vcoleman, rboy, alee, dvermilya
@@ -41,6 +52,9 @@ public class HippoDisplay extends SimpleApplication {
 	    HippoDisplay app = new HippoDisplay();
 	    app.start();
 	}
+
+	/**Nifty API*/
+	private Nifty nifty;
  
 	/** Prepare the Physics Application State (jBullet) */
 	private BulletAppState bulletAppState;
@@ -75,13 +89,6 @@ public class HippoDisplay extends SimpleApplication {
 	
 	private Timer timer = getTimer();
 	private int canEat = 0;
-	private ActionListener actionListener = new ActionListener() {
-		public void onAction(String name, boolean keyPressed, float tpf) {
-			if (name.equals("Eating") && !keyPressed) {
-				canEat = 4;
-			}
-		}
-	};
 	
 	static {
 		/** Initialize the marble geometry */
@@ -92,6 +99,24 @@ public class HippoDisplay extends SimpleApplication {
  
   @Override
 	public void simpleInitApp() {
+		setDisplayFps(false);
+	  	setDisplayStatView(false);
+	  	flyCam.setEnabled(false);
+	  	inputManager.setCursorVisible(true);
+
+		/** GUI stuff */
+	    NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay (assetManager, inputManager, audioRenderer, guiViewPort);
+	    nifty = niftyDisplay.getNifty();
+	    guiViewPort.addProcessor(niftyDisplay);
+
+	     Screens s = new Screens();
+	    // <screen>
+	    nifty.addScreen("start", s.startScreen(nifty, this));
+	    nifty.addScreen("hud", s.hudScreen(nifty, this));
+	    nifty.addScreen("pause", s.pauseScreen(nifty, this));
+	    
+	    nifty.gotoScreen("start");
+
 	    /** Set up Physics Game */
 	    bulletAppState = new BulletAppState();
 	    stateManager.attach(bulletAppState);
@@ -99,7 +124,7 @@ public class HippoDisplay extends SimpleApplication {
 	    bulletAppState.getPhysicsSpace().setGravity(Vector3f.ZERO);
 	 
 	    /** Configure cam to look at scene */
-	    cam.setLocation(new Vector3f(0, 2*wallSide, 0));
+	    cam.setLocation(new Vector3f(0, 3*wallSide, 0));
 	    cam.lookAt(new Vector3f(0, 0, 0), Vector3f.UNIT_Y);
 	    
 	    /** Initialize the scene, materials, and physics space */
@@ -120,11 +145,11 @@ public class HippoDisplay extends SimpleApplication {
 		   addScore(hippo_phy.getRecentCollisions().eatBalls());
 		   canEat = 0;
        }
-	   System.out.println("score: "+ score);
+	   //System.out.println("score: "+ score);
        mouth = interestPoint.myMouth;
        Vector3f hippo_pos = mouth.getPosition();
        hippo_pos.setY(0);
-       System.out.println(mouth.getPosition());
+       //System.out.println(mouth.getPosition());
        hippo_pos = hippo_pos.mult(wallSide*3).subtract(new Vector3f(wallSide,wallSide,wallSide));
 
        if (hippo_pos.getZ()>wallSide) { hippo_pos.setZ(wallSide);}
@@ -138,6 +163,8 @@ public class HippoDisplay extends SimpleApplication {
    
    private void addScore(int i){
 	   score += i;
+	   Element niftyElement = nifty.getScreen("hud").findElementByName("score");
+	   niftyElement.getRenderer(TextRenderer.class).setText("Current Score: "+ score);
    }
    
    public int getScore(){
@@ -315,9 +342,33 @@ public class HippoDisplay extends SimpleApplication {
 	   }
 	   
 	   private void initKeys() {
+			ActionListener actionListener = new ActionListener() {
+				public void onAction(String name, boolean keyPressed, float tpf) {
+					if (name.equals("Eating") && !keyPressed) {
+						canEat = 4;
+					}
+					if (name.equals("Pause") && !keyPressed) {
+						isRunning = !isRunning;
+						bulletAppState.setEnabled(isRunning);
+						if(!isRunning){
+							nifty.gotoScreen("pause");
+							//webcam.cleanupCapture();
+							Element niftyElement = nifty.getScreen("pause").findElementByName("score");
+							niftyElement.getRenderer(TextRenderer.class).setText("Current Score: "+ score);
+						}
+						else{
+							nifty.gotoScreen("hud");
+							//webcam.restart();
+						}
+					}
+				}
+			};
+		   
 		   inputManager.addMapping("Eating", new KeyTrigger(KeyInput.KEY_SPACE));
-		   inputManager.addListener(actionListener,  new String[]{"Eating"});
+		   inputManager.addMapping("Pause", new KeyTrigger(KeyInput.KEY_P));
+		   inputManager.addListener(actionListener,  new String[]{"Eating", "Pause"});
 	   }
+	   
 	   
    }
 

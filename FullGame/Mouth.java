@@ -1,5 +1,6 @@
-package net.sskikne.Facetrack;
+package FullGame;
 
+import com.jme3.math.Vector3f;
 import georegression.struct.point.Vector2D_F32;
 
 /**
@@ -58,8 +59,8 @@ public class Mouth {
 		return recalibrate;
 	}
 	
-	public Vector2D_F32 getPosition() {
-		return null;//new Vector2D_F32(x,z,1-y);
+	public Vector3f getPosition() {
+		return new Vector3f(x,z,1-y);
 	}
 
 	public float getX() {

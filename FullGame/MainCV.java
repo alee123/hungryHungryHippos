@@ -1,4 +1,4 @@
-package net.sskikne.Facetrack;
+package FullGame;
 
 import javax.swing.SwingUtilities;
 

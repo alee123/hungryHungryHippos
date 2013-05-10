@@ -1,4 +1,4 @@
-package net.sskikne.Facetrack;
+package FullGame;
 
 import georegression.struct.point.Point2D_I32;
 
@@ -166,7 +166,20 @@ public class WebCam extends WindowAdapter implements CaptureCallback{
                 frame.recycle();
                 
         }
-
+        
+        public void restart() {
+            try {
+                videoDevice = new VideoDevice(device);
+                frameGrabber = videoDevice.getJPEGFrameGrabber(width, height, channel, std, 80);
+                frameGrabber.setCaptureCallback(this);
+                width = frameGrabber.getWidth();
+                height = frameGrabber.getHeight();
+                frameGrabber.startCapture();
+            } catch (V4L4JException e){
+                System.err.println("Error starting the capture");
+                e.printStackTrace();
+            }
+        }
       
 }
 
