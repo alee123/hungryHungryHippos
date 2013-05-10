@@ -2,6 +2,7 @@ package FullGame;
 
  
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 import com.jme3.app.SimpleApplication;
@@ -19,6 +20,7 @@ import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
@@ -104,7 +106,7 @@ public class HippoDisplay extends SimpleApplication {
 	    WorldGenerator world = new WorldGenerator();
 	    world.initWorld();
 	    interestPoint = new InterestPointFactory(mouth);
-	    webcam = new WebCam(new BinaryFactory(interestPoint));
+	    //webcam = new WebCam(new BinaryFactory(interestPoint));
 	}
    
    /* This is the update loop */
@@ -274,18 +276,36 @@ public class HippoDisplay extends SimpleApplication {
 	    ball_phy.setDamping(0f, 0f);
 	  }
 	  
-	   
-	   public void initHippo(){
-		   hippo_geo = assetManager.loadModel( "Models/Frog/FrogBody.mesh.xml");
-		   rootNode.attachChild(hippo_geo);
-		   hippo_geo.setMaterial(hippo_mat);
-   		   Vector3f hippo_loc = new Vector3f(3,3,3);
-		   hippo_geo.setLocalTranslation(hippo_loc);
-		   hippo_phy = new HippoControl(3, bulletAppState);
-		   //System.out.println(hippo_phy);
-		   //hippo_geo.addControl(hippo_phy);
-		   //bulletAppState.getPhysicsSpace().add(hippo_phy);
-	   }
+	public void initHippo(){ 
+	    HashMap<String, Material> materials = new HashMap<String, Material>();
+		Material frog_mat = new Material(assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");   	
+	    materials.put("frog_mat", frog_mat);
+
+		Material eye_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+	    eye_mat.setColor("Color", ColorRGBA.White);	        
+	    materials.put("eye_mat", eye_mat);
+
+	    Material mouth_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+	    mouth_mat.setColor("Color", new ColorRGBA(.5f, 0f,0f, 0f));		    
+	    materials.put("mouth_mat", mouth_mat);
+
+	    Material puple_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+	    puple_mat.setColor("Color", ColorRGBA.Black);
+	    materials.put("puple_mat", puple_mat);
+		   
+		Frog frog = new Frog(materials);
+		hippo_node = frog.makeFrog();
+		   
+		rootNode.attachChild(hippo_node);
+		hippo_node.rotate(90*FastMath.DEG_TO_RAD, 0f, 180*FastMath.DEG_TO_RAD);
+   		Vector3f hippo_loc = new Vector3f(3,3,3);
+		hippo_node.setLocalTranslation(hippo_loc);
+		hippo_phy = new HippoControl(new BoxCollisionShape(new Vector3f(1,1,1)),3, bulletAppState);
+		hippo_node.addControl(hippo_phy);
+		bulletAppState.getPhysicsSpace().add(hippo_phy);
+		
+
+	}
 	   
 	   public void initLighting(){
 		    
