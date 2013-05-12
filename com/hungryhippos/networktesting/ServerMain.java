@@ -40,7 +40,6 @@ public class ServerMain extends SimpleApplication {
 	public List<Node> frog_nodes = new ArrayList<Node>();
 	public List<Integer> scores = new ArrayList<Integer>();
 	public List<Boolean> canEat = new ArrayList<Boolean>();
-	public List<Vector3f> frog_pos;
 	
 	static {
 		/** Initialize the marble geometry */
@@ -102,7 +101,7 @@ public class ServerMain extends SimpleApplication {
 		}
 		
 		
-		myServer.broadcast(new NewPosMessage(ballPos, frog_pos, scores));
+		myServer.broadcast(new NewPosMessage(ballPos, scores));
 	}
 	
 	private class WorldGenerator{
@@ -232,7 +231,6 @@ public class ServerMain extends SimpleApplication {
 			
 			public void initHippo(int playerNum){
 				frog_nodes.add(new Node("hippo"));
-				frog_pos.add(Vector3f.ZERO);
 				Vector3f hippo_loc = new Vector3f(3,3,3);
 				frog_nodes.get(playerNum).setLocalTranslation(hippo_loc);
 				frog_phy.add(new FrogControl(new SphereCollisionShape(1.5f),3, bulletAppState));
@@ -254,7 +252,6 @@ public class ServerMain extends SimpleApplication {
 				if (message instanceof FrogMessage) {
 					FrogMessage frogMessage = (FrogMessage) message;
 					frog_nodes.get(source.getId()).setLocalTranslation(frogMessage.getFrogPos());
-					frog_pos.set(source.getId(), frogMessage.getFrogPos());
 					if (frogMessage.getCanEat()){
 						canEat.set(source.getId(), true);
 					}

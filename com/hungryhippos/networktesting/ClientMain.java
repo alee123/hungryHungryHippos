@@ -39,7 +39,6 @@ public class ClientMain extends SimpleApplication {
 	private InterestPointFactory interestPoint;
 	private Mouth mouth = new Mouth(0f, 0f, 0f);
 	private Node hippo_node;
-	private Node other_frog;
 	private boolean canEat;
 	private ActionListener actionListener = new ActionListener() {
 		public void onAction(String name, boolean keyPressed, float tpf) {
@@ -51,7 +50,6 @@ public class ClientMain extends SimpleApplication {
 	private Client myClient = null;
 	public int playerNum;
 	public List<Integer> scores = new ArrayList<Integer>();
-	public Vector3f otherFrogPos = Vector3f.ZERO;
 	
 	static {
 		/** Initialize the marble geometry */
@@ -70,8 +68,7 @@ public class ClientMain extends SimpleApplication {
 	@Override
 	public void simpleInitApp() {
 		initMaterials();
-		hippo_node = initHippo();
-		other_frog = initHippo();
+		initHippo();
 		initKeys();
 		
 	    interestPoint = new InterestPointFactory(mouth );
@@ -126,8 +123,6 @@ public class ClientMain extends SimpleApplication {
         	hippo_node.setLocalTranslation(-1* hippo_pos.getY(), hippo_pos.getZ(),-1* hippo_pos.getX());
         }
         
-        other_frog.setLocalTranslation(otherFrogPos);
-        
         Message frogMessage = new FrogMessage(canEat, hippo_pos);
 	    myClient.send(frogMessage);
 	    canEat = false;
@@ -157,8 +152,7 @@ public class ClientMain extends SimpleApplication {
 	    ball_geo.setLocalTranslation(pos);
 	}
 	
-	public Node initHippo(){ 
-		Node hippo = new Node();
+	public void initHippo(){ 
 	    HashMap<String, Material> materials = new HashMap<String, Material>();
 		Material frog_mat = new Material(assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");   	
 	    materials.put("frog_mat", frog_mat);
@@ -176,13 +170,11 @@ public class ClientMain extends SimpleApplication {
 	    materials.put("puple_mat", puple_mat);
 		   
 		Frog frog = new Frog(materials);
-		hippo = frog.makeFrog();
+		hippo_node = frog.makeFrog();
 		   
-		rootNode.attachChild(hippo);
+		rootNode.attachChild(hippo_node);
    		Vector3f hippo_loc = new Vector3f(3,3,3);
-		hippo.setLocalTranslation(hippo_loc);
-		
-		return hippo;
+		hippo_node.setLocalTranslation(hippo_loc);		
 
 	}
 	
@@ -214,21 +206,13 @@ public class ClientMain extends SimpleApplication {
 			    	  cam.setLocation(new Vector3f(-2*wallSide, 0, 0));
 					  cam.lookAt(new Vector3f(0, 0, 0), Vector3f.UNIT_Y);
 			      }
-			      rotateHippo(hippo_node, playerNum);
-			      rotateHippo(other_frog, playerNum-1);
-					  
+					  rotateHippo(playerNum);
 			      
 			    } 
 			    else if (message instanceof NewPosMessage) {
 			    	NewPosMessage posMessage = (NewPosMessage) message;
 			    	ballPos = posMessage.getBalls();
 			    	scores  = posMessage.getScores();
-			    	if (playerNum ==0){
-			    		otherFrogPos  = posMessage.getFrogs().get(1);
-			    	}
-			    	else {
-			    		otherFrogPos = posMessage.getFrogs().get(0);
-			    	}
 			    }
 			    else if (message instanceof NopeMessage) {
 			    	System.out.println("Sorry, there are already two players. " +
@@ -237,12 +221,12 @@ public class ClientMain extends SimpleApplication {
 			    }
 		 }
 		 
-		 private void rotateHippo(Node node, int player) {
+		 private void rotateHippo(int player) {
 			 if (player == 0){
-					node.rotate(90*FastMath.DEG_TO_RAD, 0f, 180*FastMath.DEG_TO_RAD);
+					hippo_node.rotate(90*FastMath.DEG_TO_RAD, 0f, 180*FastMath.DEG_TO_RAD);
 				}
 				else {
-					node.rotate(180*FastMath.DEG_TO_RAD, 90*FastMath.DEG_TO_RAD, 180*FastMath.DEG_TO_RAD);
+					hippo_node.rotate(180*FastMath.DEG_TO_RAD, 90*FastMath.DEG_TO_RAD, 180*FastMath.DEG_TO_RAD);
 				}			
 		}
 

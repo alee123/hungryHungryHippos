@@ -47,7 +47,6 @@ import com.jme3.input.controls.*;
  * @author adapted from base code by double1984, updated by zathras
  */
 public class HippoDisplay extends SimpleApplication {
-	private boolean isRunning;
  
 	public static void main(String args[]) {
 	    HippoDisplay app = new HippoDisplay();
