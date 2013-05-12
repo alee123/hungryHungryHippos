@@ -46,6 +46,7 @@ public class InterestPointFactory implements Analyzer {
     static int sizeW = 80;
     
     static int framenum = 0;
+    static int mouthCount = 0;
     Circle2D_F64 mouth = null;
     int mouthguess = 0;
     Point2D_F64 mouthguesspt;
@@ -252,10 +253,14 @@ public class InterestPointFactory implements Analyzer {
 			tempMouth.set((float)mouth.center.x ,(float)mouth.center.y, (float) mouth.radius/100, true, false);
 			if (myMouth.equals(tempMouth)){
 				framenum++;
-				tempMouth.setOpen(false);
+				mouthCount ++;
+				if (mouthCount > 2){
+					tempMouth.setOpen(false);
+				}
 			}
 			else{
 				framenum = 1;
+				mouthCount = 1;
 				tempMouth.setOpen(true);
 			}
 			//update myMouth
@@ -327,9 +332,11 @@ public class InterestPointFactory implements Analyzer {
 						Mouth tempMouth = new Mouth(1,1,1);
 						tempMouth.set((float)mouth.center.x ,(float)mouth.center.y, (float) mouth.radius/100, true, false);
 						if (myMouth.equals(tempMouth)){
+							mouthCount ++;
 							tempMouth.setOpen(false);
 						}
 						else{
+							mouthCount = 1;
 							tempMouth.setOpen(true);
 						}
 						//update myMouth
