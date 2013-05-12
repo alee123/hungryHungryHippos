@@ -254,7 +254,7 @@ public class InterestPointFactory implements Analyzer {
 			if (myMouth.equals(tempMouth)){
 				framenum++;
 				mouthCount ++;
-				if (mouthCount > 2){
+				if (mouthCount >15){
 					tempMouth.setOpen(false);
 				}
 			}
@@ -332,8 +332,10 @@ public class InterestPointFactory implements Analyzer {
 						Mouth tempMouth = new Mouth(1,1,1);
 						tempMouth.set((float)mouth.center.x ,(float)mouth.center.y, (float) mouth.radius/100, true, false);
 						if (myMouth.equals(tempMouth)){
-							mouthCount ++;
-							tempMouth.setOpen(false);
+							if (mouthCount > 15){
+								mouthCount ++;
+								tempMouth.setOpen(false);
+							}
 						}
 						else{
 							mouthCount = 1;
