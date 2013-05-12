@@ -47,6 +47,7 @@ import com.jme3.input.controls.*;
  * @author adapted from base code by double1984, updated by zathras
  */
 public class HippoDisplay extends SimpleApplication {
+	private boolean isRunning;
  
 	public static void main(String args[]) {
 	    HippoDisplay app = new HippoDisplay();
@@ -89,6 +90,8 @@ public class HippoDisplay extends SimpleApplication {
 	
 	private Timer timer = getTimer();
 	private int canEat = 0;
+
+	private boolean mouthOpen = true;
 	
 	static {
 		/** Initialize the marble geometry */
@@ -141,12 +144,18 @@ public class HippoDisplay extends SimpleApplication {
     	   hippo_phy.getRecentCollisions().timeOutList();
     	   timer.reset();
        }
+       
+       mouth = interestPoint.myMouth;
+       if (!mouth.isOpen() && mouthOpen ){
+    	   canEat = 1;
+       }
+       mouthOpen = mouth.isOpen();
+       
 	   if (canEat>0) {
 		   addScore(hippo_phy.getRecentCollisions().eatBalls());
 		   canEat = 0;
        }
 	   //System.out.println("score: "+ score);
-       mouth = interestPoint.myMouth;
        Vector3f hippo_pos = mouth.getPosition();
        hippo_pos.setY(0);
        //System.out.println(mouth.getPosition());
@@ -343,6 +352,7 @@ public class HippoDisplay extends SimpleApplication {
 	   
 	   private void initKeys() {
 			ActionListener actionListener = new ActionListener() {
+
 				public void onAction(String name, boolean keyPressed, float tpf) {
 					if (name.equals("Eating") && !keyPressed) {
 						canEat = 4;

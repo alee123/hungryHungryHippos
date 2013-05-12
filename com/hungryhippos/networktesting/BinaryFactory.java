@@ -34,7 +34,6 @@ public class BinaryFactory implements Analyzer {
  
 		// create a binary image by thresholding
 		ThresholdImageOps.threshold(input,binary,(float)(mean -70.0),true);
-		System.out.println(mean);
 		// remove small blobs through erosion and dilation
 		// The null in the input indicates that it should internally declare the work image it needs
 		// this is less efficient, but easier to code.

@@ -36,10 +36,11 @@ public class ServerMain extends SimpleApplication {
 	private float wallSide = 5f;
 	private float wallThickness = .2f;
 	Server myServer = null;
-	public List<HippoControl> hippo_phy = new ArrayList<HippoControl>();
-	public List<Node> hippo_nodes = new ArrayList<Node>();
+	public List<FrogControl> frog_phy = new ArrayList<FrogControl>();
+	public List<Node> frog_nodes = new ArrayList<Node>();
 	public List<Integer> scores = new ArrayList<Integer>();
 	public List<Boolean> canEat = new ArrayList<Boolean>();
+	public List<Vector3f> frog_pos;
 	
 	static {
 		/** Initialize the marble geometry */
@@ -81,13 +82,13 @@ public class ServerMain extends SimpleApplication {
 		for (int i = 0; i< canEat.size(); i++){
 			if (canEat.get(i)){
 				Integer score = scores.get(i); 
-				score += hippo_phy.get(i).getRecentCollisions().eatBalls();
+				score += frog_phy.get(i).getRecentCollisions().eatBalls();
 				scores.set(i,score);
 			}
 		}
 		
 		if (timer.getTime() > 200){
-			for (HippoControl phy : hippo_phy){
+			for (FrogControl phy : frog_phy){
 				phy.getRecentCollisions().timeOutList();
 				timer.reset();
 			}
@@ -100,10 +101,8 @@ public class ServerMain extends SimpleApplication {
 			}
 		}
 		
-		myServer.broadcast(new NewPosMessage(ballPos, scores));
-		for (Integer score : scores) {
-			System.out.println(score);
-		}
+		
+		myServer.broadcast(new NewPosMessage(ballPos, frog_pos, scores));
 	}
 	
 	private class WorldGenerator{
@@ -213,14 +212,17 @@ public class ServerMain extends SimpleApplication {
 
 			@Override
 			public void connectionAdded(Server server, HostedConnection client) {
+				if (frog_phy.size()>=2) {
+					server.broadcast(Filters.in(client), new NopeMessage());
+				}
 				ArrayList<Vector3f> ballPos = new ArrayList<Vector3f>();
 				for (Spatial thing : rootNode.getChildren()){
 					if (thing.getName() == "marble"){
 						ballPos.add(thing.getLocalTranslation());
 					}
 				}
-				Message message = new HelloMessage(wallSide, ballPos, hippo_phy.size());
-				initHippo(hippo_phy.size());
+				Message message = new HelloMessage(wallSide, ballPos, frog_phy.size());
+				initHippo(frog_phy.size());
 				server.broadcast(Filters.in(client), message);
 			}
 
@@ -229,12 +231,13 @@ public class ServerMain extends SimpleApplication {
 			}
 			
 			public void initHippo(int playerNum){
-				hippo_nodes.add(new Node("hippo"));
+				frog_nodes.add(new Node("hippo"));
+				frog_pos.add(Vector3f.ZERO);
 				Vector3f hippo_loc = new Vector3f(3,3,3);
-				hippo_nodes.get(playerNum).setLocalTranslation(hippo_loc);
-				hippo_phy.add(new HippoControl(new SphereCollisionShape(1.5f),3, bulletAppState));
-				hippo_nodes.get(playerNum).addControl(hippo_phy.get(playerNum));
-				bulletAppState.getPhysicsSpace().add(hippo_phy.get(playerNum));
+				frog_nodes.get(playerNum).setLocalTranslation(hippo_loc);
+				frog_phy.add(new FrogControl(new SphereCollisionShape(1.5f),3, bulletAppState));
+				frog_nodes.get(playerNum).addControl(frog_phy.get(playerNum));
+				bulletAppState.getPhysicsSpace().add(frog_phy.get(playerNum));
 				scores.add(0);
 				canEat.add(false);
 			}
@@ -250,7 +253,8 @@ public class ServerMain extends SimpleApplication {
 				}
 				if (message instanceof FrogMessage) {
 					FrogMessage frogMessage = (FrogMessage) message;
-					hippo_nodes.get(source.getId()).setLocalTranslation(frogMessage.getFrogPos());
+					frog_nodes.get(source.getId()).setLocalTranslation(frogMessage.getFrogPos());
+					frog_pos.set(source.getId(), frogMessage.getFrogPos());
 					if (frogMessage.getCanEat()){
 						canEat.set(source.getId(), true);
 					}

@@ -39,6 +39,7 @@ public class ClientMain extends SimpleApplication {
 	private InterestPointFactory interestPoint;
 	private Mouth mouth = new Mouth(0f, 0f, 0f);
 	private Node hippo_node;
+	private Node other_frog;
 	private boolean canEat;
 	private ActionListener actionListener = new ActionListener() {
 		public void onAction(String name, boolean keyPressed, float tpf) {
@@ -50,6 +51,7 @@ public class ClientMain extends SimpleApplication {
 	private Client myClient = null;
 	public int playerNum;
 	public List<Integer> scores = new ArrayList<Integer>();
+	public Vector3f otherFrogPos = Vector3f.ZERO;
 	
 	static {
 		/** Initialize the marble geometry */
@@ -68,7 +70,8 @@ public class ClientMain extends SimpleApplication {
 	@Override
 	public void simpleInitApp() {
 		initMaterials();
-		initHippo();
+		hippo_node = initHippo();
+		other_frog = initHippo();
 		initKeys();
 		
 	    interestPoint = new InterestPointFactory(mouth );
@@ -119,12 +122,11 @@ public class ClientMain extends SimpleApplication {
         if (playerNum == 0){
         	hippo_node.setLocalTranslation(hippo_pos);
         }
-        else if (playerNum == 1){
-        	hippo_node.setLocalTranslation(hippo_pos.getX(), hippo_pos.getZ(), -1 * hippo_pos.getY());
-        }
         else {
-        	hippo_node.setLocalTranslation(hippo_pos.getY(), hippo_pos.getZ(), hippo_pos.getX());
+        	hippo_node.setLocalTranslation(-1* hippo_pos.getY(), hippo_pos.getZ(),-1* hippo_pos.getX());
         }
+        
+        other_frog.setLocalTranslation(otherFrogPos);
         
         Message frogMessage = new FrogMessage(canEat, hippo_pos);
 	    myClient.send(frogMessage);
@@ -155,7 +157,8 @@ public class ClientMain extends SimpleApplication {
 	    ball_geo.setLocalTranslation(pos);
 	}
 	
-	public void initHippo(){ 
+	public Node initHippo(){ 
+		Node hippo = new Node();
 	    HashMap<String, Material> materials = new HashMap<String, Material>();
 		Material frog_mat = new Material(assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");   	
 	    materials.put("frog_mat", frog_mat);
@@ -173,12 +176,13 @@ public class ClientMain extends SimpleApplication {
 	    materials.put("puple_mat", puple_mat);
 		   
 		Frog frog = new Frog(materials);
-		hippo_node = frog.makeFrog();
+		hippo = frog.makeFrog();
 		   
-		rootNode.attachChild(hippo_node);
-		hippo_node.rotate(90*FastMath.DEG_TO_RAD, 0f, 180*FastMath.DEG_TO_RAD);
+		rootNode.attachChild(hippo);
    		Vector3f hippo_loc = new Vector3f(3,3,3);
-		hippo_node.setLocalTranslation(hippo_loc);		
+		hippo.setLocalTranslation(hippo_loc);
+		
+		return hippo;
 
 	}
 	
@@ -206,28 +210,43 @@ public class ClientMain extends SimpleApplication {
 			    	  cam.setLocation(new Vector3f(0, 2*wallSide, 0));
 					  cam.lookAt(new Vector3f(0, 0, 0), Vector3f.UNIT_Y);
 			      }
-			      else if (playerNum == 1){
-			    	  cam.setLocation(new Vector3f(0, 0, 2*wallSide));
-					  cam.lookAt(new Vector3f(0, 0, 0), Vector3f.UNIT_Y);
-			      }
 			      else {
-			    	  cam.setLocation(new Vector3f(2*wallSide, 0, 0));
+			    	  cam.setLocation(new Vector3f(-2*wallSide, 0, 0));
 					  cam.lookAt(new Vector3f(0, 0, 0), Vector3f.UNIT_Y);
 			      }
+			      rotateHippo(hippo_node, playerNum);
+			      rotateHippo(other_frog, playerNum-1);
+					  
 			      
 			    } 
 			    else if (message instanceof NewPosMessage) {
 			    	NewPosMessage posMessage = (NewPosMessage) message;
 			    	ballPos = posMessage.getBalls();
 			    	scores  = posMessage.getScores();
+			    	if (playerNum ==0){
+			    		otherFrogPos  = posMessage.getFrogs().get(1);
+			    	}
+			    	else {
+			    		otherFrogPos = posMessage.getFrogs().get(0);
+			    	}
+			    }
+			    else if (message instanceof NopeMessage) {
+			    	System.out.println("Sorry, there are already two players. " +
+			    			"If you play, it's just going to be really " +
+			    			"screwy for everyone");
 			    }
 		 }
 		 
-		 public void initWalls(float wallSide) {
-			    /*Box level = new Box(Vector3f.ZERO, sideLen, 1, sideLen);   
-			
-			    Vector3f bottom_loc = new Vector3f(0,-1*sideLen,0);
-			    makeWall(bottom_loc, level);  */
+		 private void rotateHippo(Node node, int player) {
+			 if (player == 0){
+					node.rotate(90*FastMath.DEG_TO_RAD, 0f, 180*FastMath.DEG_TO_RAD);
+				}
+				else {
+					node.rotate(180*FastMath.DEG_TO_RAD, 90*FastMath.DEG_TO_RAD, 180*FastMath.DEG_TO_RAD);
+				}			
+		}
+
+		public void initWalls(float wallSide) {
 			 	Box facing = new Box(Vector3f.ZERO, wallSide, wallSide, wallThickness);
 			    Box side = new Box(Vector3f.ZERO, wallThickness, wallSide, wallSide);
 			    Box level = new Box(Vector3f.ZERO, wallSide, wallThickness, wallSide); 

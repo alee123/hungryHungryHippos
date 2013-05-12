@@ -83,7 +83,6 @@ public class InterestPointFactory implements Analyzer {
     public BufferedImage analyze( BufferedImage workImage, BufferedImage showImage)
 	{
     	ImageUInt8 input = new ImageUInt8(workImage.getWidth(),workImage.getHeight());
-    	System.out.println("Image Width " + workImage.getWidth() + " Image Height " + workImage.getHeight());
 
     	ConvertBufferedImage.convertFrom(workImage, input);
       
@@ -178,7 +177,6 @@ public class InterestPointFactory implements Analyzer {
 						if (mouth == null){
 							if (radius > mouthguess){
 	
-								System.out.println("Here1");
 								mouthguesspt = pt;
 								mouthguess = radius;
 							}
@@ -219,11 +217,9 @@ public class InterestPointFactory implements Analyzer {
 				readNext = true;
 			
 			}
-			System.out.println("Mouth: "+ mouth.radius);
 			render.addCircle((int)mouth.center.x ,(int)mouth.center.y, (int) mouth.radius , Color.WHITE);
 			
 		}
-		System.out.println(myMouth);
 		if (mouth != null){
 			myMouth.set((float)mouth.center.x ,(float)mouth.center.y, (float) mouth.radius/100, true, false);
 		}

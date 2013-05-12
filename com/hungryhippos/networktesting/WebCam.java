@@ -100,7 +100,6 @@ public class WebCam extends WindowAdapter implements CaptureCallback{
                 frameGrabber.setCaptureCallback(this);
                 width = frameGrabber.getWidth();
                 height = frameGrabber.getHeight();
-                System.out.println("Starting capture at "+width+"x"+height);
         }
 
         /** 

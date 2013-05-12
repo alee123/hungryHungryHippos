@@ -17,15 +17,15 @@ import com.jme3.scene.Spatial;
  * 
  */
 
-public class HippoControl extends GhostControl implements PhysicsCollisionListener{
+public class FrogControl extends GhostControl implements PhysicsCollisionListener{
 	private BulletAppState bulletAppState;
 	private RecentCollisions recentCollisions;
 
-	public HippoControl(int numLists, BulletAppState bulletAppState) {
+	public FrogControl(int numLists, BulletAppState bulletAppState) {
 		constructHelper(numLists, bulletAppState);
 	}
 	
-	public HippoControl(CollisionShape shape, int numLists, BulletAppState bulletAppState) {
+	public FrogControl(CollisionShape shape, int numLists, BulletAppState bulletAppState) {
 		super(shape);
 		constructHelper(numLists, bulletAppState);
 	}
