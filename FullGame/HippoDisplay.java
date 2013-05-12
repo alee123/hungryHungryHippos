@@ -55,6 +55,7 @@ public class HippoDisplay extends SimpleApplication {
 
 	/**Nifty API*/
 	private Nifty nifty;
+	private boolean isRunning= true;
  
 	/** Prepare the Physics Application State (jBullet) */
 	private BulletAppState bulletAppState;
