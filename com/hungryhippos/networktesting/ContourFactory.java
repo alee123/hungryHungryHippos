@@ -13,11 +13,11 @@ import boofcv.struct.image.ImageFloat32;
 import boofcv.struct.image.ImageSInt32;
 import boofcv.struct.image.ImageUInt8;
 
-public class BinaryFactory implements Analyzer {
+public class ContourFactory implements Analyzer {
 	boolean pass = false;
-	public Analyzer nextFactory;
+	Analyzer nextFactory;
 	
-	BinaryFactory (Analyzer next){
+	ContourFactory (Analyzer next){
 		pass = true;
 		nextFactory = next;
 		
@@ -33,8 +33,8 @@ public class BinaryFactory implements Analyzer {
 		double mean = ImageStatistics.mean(input);
  
 		// create a binary image by thresholding
-		ThresholdImageOps.threshold(input,binary,(float)(mean -70.0),true);
-		System.out.println(mean);
+		ThresholdImageOps.threshold(input,binary,(float)(mean -50.0),true);
+ 
 		// remove small blobs through erosion and dilation
 		// The null in the input indicates that it should internally declare the work image it needs
 		// this is less efficient, but easier to code.
@@ -50,15 +50,15 @@ public class BinaryFactory implements Analyzer {
  
 		// display the results
 //		BufferedImage visualBinary = VisualizeBinaryData.renderBinary(binary, null);
-		BufferedImage visualFiltered = VisualizeBinaryData.renderBinary(filtered, null);
+//		BufferedImage visualFiltered = VisualizeBinaryData.renderBinary(filtered, null);
 //		BufferedImage visualLabel = VisualizeBinaryData.renderLabeled(labeli, contours.size(), null);
-//		BufferedImage visualContour = VisualizeBinaryData.renderContours(contours,colorExternal,colorInternal,
-//				input.width,input.height,null);
+		BufferedImage visualContour = VisualizeBinaryData.renderContours(contours,colorExternal,colorInternal,
+				input.width,input.height,null);
  
 		if (pass){
-			return nextFactory.analyze(visualFiltered, showImage);
+			return nextFactory.analyze(visualContour, showImage );
 		}
-		return visualFiltered;
+		return visualContour;
 	}
 
 }

@@ -100,6 +100,7 @@ public class WebCam extends WindowAdapter implements CaptureCallback{
                 frameGrabber.setCaptureCallback(this);
                 width = frameGrabber.getWidth();
                 height = frameGrabber.getHeight();
+                System.out.println("Starting capture at "+width+"x"+height);
         }
 
         /** 
@@ -165,7 +166,20 @@ public class WebCam extends WindowAdapter implements CaptureCallback{
                 frame.recycle();
                 
         }
-
+        
+        public void restart() {
+            try {
+                videoDevice = new VideoDevice(device);
+                frameGrabber = videoDevice.getJPEGFrameGrabber(width, height, channel, std, 80);
+                frameGrabber.setCaptureCallback(this);
+                width = frameGrabber.getWidth();
+                height = frameGrabber.getHeight();
+                frameGrabber.startCapture();
+            } catch (V4L4JException e){
+                System.err.println("Error starting the capture");
+                e.printStackTrace();
+            }
+        }
       
 }
 
