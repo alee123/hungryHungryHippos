@@ -19,6 +19,8 @@ public class Mouth {
 	private float z;
 	private boolean open;
 	private boolean recalibrate;
+	public boolean GUIrecalibrate = false;
+	public boolean WebCamrecalibrate = true;
 
 	/**
 	 * 
@@ -82,6 +84,20 @@ public class Mouth {
 		setOpen(b);
 		setRecalibrate(c);
 		
+	}
+	public boolean equals(Mouth oldMouth){
+		if (this.x == oldMouth.x){
+			if (this.y == oldMouth.y){
+				if (this.z == oldMouth.z){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public String toString(){
+		return "Mouth " + this.x + " " + this.y + " " + this.z;
 	}
 
 }

@@ -18,6 +18,7 @@ public class Screens {
 		nifty.loadControlFile("nifty-default-controls.xml");
 		Screen screen = new ScreenBuilder("start") {{
 	        controller(new MyScreens(a));
+
 	        layer(new LayerBuilder("background") {{
 	            childLayoutCenter();
 	            //backgroundColor("#000f");
@@ -117,6 +118,7 @@ public class Screens {
 		nifty.loadControlFile("nifty-default-controls.xml");
 		Screen screen = new ScreenBuilder("hud") {{
 	        controller(new MyScreens(a));
+
 	        
 	        layer(new LayerBuilder("background") {{
 	            childLayoutCenter();
