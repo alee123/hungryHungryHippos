@@ -6,53 +6,58 @@ import georegression.struct.trig.Circle2D_F64;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import boofcv.abst.feature.detect.interest.ConfigFastHessian;
 import boofcv.abst.feature.detect.interest.InterestPointDetector;
-import boofcv.alg.enhance.EnhanceImageOps;
 import boofcv.alg.enhance.impl.ImplEnhanceFilter;
-import boofcv.alg.misc.ImageStatistics;
 import boofcv.core.image.ConvertBufferedImage;
 import boofcv.factory.feature.detect.interest.FactoryInterestPoint;
-import boofcv.gui.ListDisplayPanel;
 import boofcv.gui.feature.FancyInterestPointRender;
 import boofcv.gui.feature.VisualizeShapes;
-import boofcv.gui.image.ShowImages;
-import boofcv.io.image.UtilImageIO;
 import boofcv.struct.BoofDefaults;
-import boofcv.struct.image.ImageFloat32;
 import boofcv.struct.image.ImageUInt8;
 
+
+/**
+ * InterestPointFactory takes in a BufferedImage and tries to find the objects in the image.
+ * It initially finds a mouth object in the middle of the webcam's view.
+ * For each image, the factory uses the found objects to try track the mouth's movement.
+ * When it loses track of the mouth, it recalibrates  
+ * @author sskikne and lpark
+ *
+ */
 public class InterestPointFactory implements Analyzer {
 	 
 	
 	static InterestPointDetector<ImageUInt8> detector = FactoryInterestPoint.fastHessian(
 				new ConfigFastHessian(10, 2, 1, 2, 9, 3, 4));
-	 
 	
 
-
 	public static ImplEnhanceFilter IEF = new ImplEnhanceFilter();
+	
+	//Rectangle and the W and H ints are used to define our recalibration region.
     static ArrayList<Point2D_I32> rectangle = new ArrayList<Point2D_I32>();
     static int rectW = 320;
     static int rectH = 240;
     static int sizeH = 80;
     static int sizeW = 80;
+    
     static int framenum = 0;
     Circle2D_F64 mouth = null;
     int mouthguess = 0;
     Point2D_F64 mouthguesspt;
     Mouth myMouth;
+    Graphics2D g2;
+    
     
     boolean pass = false;
 	Analyzer nextFactory;
 	
-	boolean readNext = true;
-    
+	
+	//constructor with another factory to pass to
     InterestPointFactory(Analyzer next, Mouth mouth2){
     	myMouth = mouth2;
     	rectangle.add(new Point2D_I32(rectW - sizeW, rectH - sizeH));
@@ -64,7 +69,7 @@ public class InterestPointFactory implements Analyzer {
 		nextFactory = next;
 	 }
 	 
-
+    //constructor with no other factory to pass to
 	public InterestPointFactory(Mouth mouth2) {
     	myMouth = mouth2;
 		rectangle.add(new Point2D_I32(rectW - sizeW, rectH - sizeH));
@@ -73,6 +78,10 @@ public class InterestPointFactory implements Analyzer {
 		rectangle.add(new Point2D_I32(rectW - sizeW, rectH + sizeH));
 	}
 
+	/**checks if point is in rectangle
+	 * @param point location
+	 * @return boolean
+	 */
 	public boolean inrectangle(Point2D_F64 point){
 		if (point.x > rectW - sizeW && point.x < rectW + sizeW && point.y > rectH - sizeH && point.y < rectH + sizeH){
 			return true;
@@ -80,69 +89,111 @@ public class InterestPointFactory implements Analyzer {
 		return false;
 	} 
 	
-    public BufferedImage analyze( BufferedImage workImage, BufferedImage showImage)
+	/* detect Interest Points
+	 * analyze takes BufferedImage binary image 
+	 * returns BufferedImage with white circle indicating location of the Mouth
+	 * (non-Javadoc)
+	 * @see net.sskikne.Facetrack.Analyzer#analyze(java.awt.image.BufferedImage, java.awt.image.BufferedImage)
+	 */
+	public BufferedImage analyze( BufferedImage workImage, BufferedImage showImage)
 	{
     	ImageUInt8 input = new ImageUInt8(workImage.getWidth(),workImage.getHeight());
-    	System.out.println("Image Width " + workImage.getWidth() + " Image Height " + workImage.getHeight());
 
     	ConvertBufferedImage.convertFrom(workImage, input);
       
     	detector.detect(input);
     	
-		Graphics2D g2 = showImage.createGraphics();
+		g2 = showImage.createGraphics();
 		FancyInterestPointRender render = new FancyInterestPointRender();
-
-		VisualizeShapes.drawPolygon(rectangle, true, g2);
 		
-		if (myMouth.isRecalibrate()){
-			recalibrate();
-		}
-		
-		configure(render);
-
+		//recalibrates or configures image as usual
+		handleImage(render);
 		g2.setStroke(new BasicStroke(7));
  			
 		// just draw the features onto the input image
 		render.draw(g2);
-		framenum++;
-
+		
+		// if there is a factory we would like to pass processed image to, pass image.
 		if (pass){
 			return nextFactory.analyze(workImage, showImage);
 		}
+		
 		return showImage;
 		
 	}
 
 
+	/**recalibrates the Mouth or configures image as usual
+	 * @param FancyInterestPointRender render
+	 */
+	private void handleImage(FancyInterestPointRender render) {
+		//if mouth doesn't move after a period of time, recalibrate mouth
+		
+		System.out.println(myMouth.isOpen());
+		System.out.println(framenum);
+		
+		if (framenum > 30){
+			myMouth.GUIrecalibrate = true;
+			framenum = 1;
+		}
+		
+		
+		if (myMouth.GUIrecalibrate && myMouth.WebCamrecalibrate){
+			//during recalibration process, 
+			//if player hasn't confirmed recalibration within period of time, 
+			//automatically confirm recalibration.
+				
+			if (framenum < 20){
+				recalibrate(render);
+				framenum ++;
+
+			}
+			else{
+				
+				myMouth.GUIrecalibrate = false;
+				myMouth.WebCamrecalibrate = false;
+			}
+		}
+		
+		//if not recalibrating, then configure
+		else{
+			configure(render);
+		}
+		
+	}
+
+	/**Locates the mouth's position based on its previous position
+	 * @param render
+	 */
 	private void configure(FancyInterestPointRender render) {
 		Point2D_F64 closestpt = null;
 		double closestDist = 800;
-		int closestptIndex = -1;
 		float closestRadius = 0;
 		
 		Point2D_F64 closestBiggest = null;
-		int closestBIndex = -1;
 		double closestBDist = 800;
 		float closestBRadius = 0;
 		
-		
+		//loop though all interest points
 		for (int i = 0; i < detector.getNumberOfFeatures(); i++){
 			Point2D_F64 pt = detector.getLocation(i);
 
 			double scale = detector.getScale(i);
 			int radius = (int)(scale* BoofDefaults.SCALE_SPACE_CANONICAL_RADIUS);
+			
+			//finds closest interest point and closest interest point of similar size
 			if (radius > 17){
 				if(mouth != null){
 					if (mouth.center.distance(pt) < 100){
+						//find closest interest point
 						if (mouth.center.distance(pt) < closestDist){
 							closestpt = pt;
-							closestptIndex = i;
 							closestDist = mouth.center.distance(pt);
 							closestRadius = radius;
 						}
+						//find closest interestpoint of similar size
 						if (mouth.center.distance(pt) < closestBDist && (mouth.radius-radius < 10 || radius - mouth.radius < 10)){
 							closestBiggest = pt;
-							closestBIndex = i;
 							closestBDist = mouth.center.distance(pt);
 							closestBRadius = radius;
 							
@@ -153,85 +204,144 @@ public class InterestPointFactory implements Analyzer {
 
 		}
 		
-		
-
-		
-		for( int i = 0; i < detector.getNumberOfFeatures(); i++ ) {
-			Point2D_F64 pt = detector.getLocation(i);
-			// note how it checks the capabilities of the detector
-			if( detector.hasScale() ) {
-				double scale = detector.getScale(i);	
-				int radius = (int)(scale* BoofDefaults.SCALE_SPACE_CANONICAL_RADIUS);
-//				if(mouth != null){
-//					System.out.println("Radius " + mouth.radius + " Center " + mouth.center);
-//					if (mouth.center.distance(pt) >0 && mouth.center.distance(pt) < 20 && ((mouth.radius - radius) < 1.0 || (-mouth.radius + radius) < 1.0 )){
-//						System.out.println("Here");
-//						System.out.println("Was" + mouth.center);
-//						System.out.println("Will be" + pt);
-//						System.out.println(mouth.center.distance(pt));
-//						mouth.center = new Point2D_F64(pt.x, pt.y);
-//						mouth.radius = radius;
-//					}
-	//				}
-				if (radius > 17){
-					if (inrectangle(pt)){
-						if (mouth == null){
-							if (radius > mouthguess){
-	
-								System.out.println("Here1");
-								mouthguesspt = pt;
-								mouthguess = radius;
-							}
-						}
-						render.addCircle((int)pt.x,(int)pt.y,radius, Color.RED);
-						
-					}else{
-						render.addCircle((int)pt.x,(int)pt.y,radius, Color.BLACK);
-					}
-				
-				} else {
-					//render.addPoint((int) pt.x, (int) pt.y);
-				}
-			}
+		//if mouth doesn't exist, draw the "reset"/default objects
+		if (mouth == null){
+			drawResetObjects(render);
 		}
-//		if (closestpt != null){
-//			render.addCircle((int)closestpt.x ,(int)closestpt.y,(int) closestRadius , Color.WHITE);
-//		}
-//		
-//		if (closestBiggest != null){
-//			render.addCircle((int)closestBiggest.x ,(int)closestBiggest.y, (int) closestBRadius , Color.WHITE);
-//		}
+		
+		//draw interest point that represents mouth
+		drawMouth(render, closestpt, closestRadius, closestBiggest,
+				closestBRadius);
+	}
 
+
+	/**Draw the interest point that best represents the mouth
+	 * @param render
+	 * @param closestpt
+	 * @param closestRadius
+	 * @param closestBiggest
+	 * @param closestBRadius
+	 */
+	private void drawMouth(FancyInterestPointRender render,
+			Point2D_F64 closestpt, float closestRadius,
+			Point2D_F64 closestBiggest, float closestBRadius) {
+		//If no idea where mouth is, guess
 		if (mouth == null && mouthguesspt != null && mouthguess != 0.0){
 			
 			mouth = new Circle2D_F64();
 			mouth.center= mouthguesspt;
 			mouth.radius= mouthguess;
 		}
+		//if mouth exists, draw closestBiggest "mouth" if exist, or closest "mouth".
 		if(mouth != null){
 			if (closestBiggest != null){
-				mouth.center = mouth.center = new Point2D_F64(closestBiggest.x, closestBiggest.y);
+				mouth.center = new Point2D_F64(closestBiggest.x, closestBiggest.y);
 				mouth.radius = closestBRadius;
-				readNext = false;
 			} else if (closestpt != null) {
 				mouth.center = new Point2D_F64(closestpt.x, closestpt.y); 
 				mouth.radius = closestRadius;
-				readNext = true;
-			
 			}
-			System.out.println("Mouth: "+ mouth.radius);
 			render.addCircle((int)mouth.center.x ,(int)mouth.center.y, (int) mouth.radius , Color.WHITE);
 			
 		}
-		System.out.println(myMouth);
+		
+		//check if new mouth is equal to old Mouth
 		if (mouth != null){
-			myMouth.set((float)mouth.center.x ,(float)mouth.center.y, (float) mouth.radius/100, true, false);
+			
+			Mouth tempMouth = new Mouth(1,1,1);
+			tempMouth.set((float)mouth.center.x ,(float)mouth.center.y, (float) mouth.radius/100, true, false);
+			if (myMouth.equals(tempMouth)){
+				framenum++;
+				tempMouth.setOpen(false);
+			}
+			else{
+				framenum = 1;
+				tempMouth.setOpen(true);
+			}
+			//update myMouth
+			myMouth = tempMouth;
+			
 		}
-		// make the circle's thicker
+	}
+
+
+	/**draw reset/default objects if no mouth exists
+	 * @param FancyInterestPointRender render
+	 */
+	private void drawResetObjects(FancyInterestPointRender render) {
+		//draw rectangle
+		VisualizeShapes.drawPolygon(rectangle, true, g2);
+		
+		//loops through all interestpoints
+		for( int i = 0; i < detector.getNumberOfFeatures(); i++ ) {
+			Point2D_F64 pt = detector.getLocation(i);
+			// note how it checks the capabilities of the detector
+			if( detector.hasScale() ) {
+				double scale = detector.getScale(i);	
+				int radius = (int)(scale* BoofDefaults.SCALE_SPACE_CANONICAL_RADIUS);
+				//find 1st interest point of certain size within rectangle. This becomes the mouth
+				if (radius > 17){
+					if (inrectangle(pt)){
+						if (radius > mouthguess){
+							mouthguesspt = pt;
+							mouthguess = radius;
+						}
+						//draw interest points of certain size in rectangle,red
+						render.addCircle((int)pt.x,(int)pt.y,radius, Color.RED);
+						
+					}else{
+						//draw interest points of certain size outside rectangle, black
+						render.addCircle((int)pt.x,(int)pt.y,radius, Color.BLACK);
+					}
+				} 			
+			}
+		}
 	}
 	
-	public void recalibrate(){
-		mouth = null;
+	/**recalibrates mouth
+	 * @param FancyInterestPointRender render
+	 */
+	public void recalibrate(FancyInterestPointRender render){
+		//draw rectangle
+		VisualizeShapes.drawPolygon(rectangle, true, g2);
+		
+		//loop through all interest points
+		for( int i = 0; i < detector.getNumberOfFeatures(); i++ ) {
+			Point2D_F64 pt = detector.getLocation(i);
+			if( detector.hasScale() ) {
+				double scale = detector.getScale(i);	
+				int radius = (int)(scale* BoofDefaults.SCALE_SPACE_CANONICAL_RADIUS);
+				//find interest point of certain size in rectangle, this becomes recalibrated mouth
+				// Closest fit becomes our mouth guess
+				if (radius > 17){
+					if (inrectangle(pt)){
+						mouthguesspt = pt;
+						mouthguess = radius;
+						
+						mouth.center = new Point2D_F64(pt.x, pt.y); 
+						mouth.radius = radius;
+						
+						render.addCircle((int)pt.x,(int)pt.y,radius, Color.WHITE);
+						
+						//check if old Mouth and new mouth is same.
+						Mouth tempMouth = new Mouth(1,1,1);
+						tempMouth.set((float)mouth.center.x ,(float)mouth.center.y, (float) mouth.radius/100, true, false);
+						if (myMouth.equals(tempMouth)){
+							tempMouth.setOpen(false);
+						}
+						else{
+							tempMouth.setOpen(true);
+						}
+						//update myMouth
+						myMouth = tempMouth;
+						
+						myMouth.set((float)mouth.center.x ,(float)mouth.center.y, (float) mouth.radius/100, true, false);
+					}
+				}
+			}
+			
+		}
+		
 	}
  }
 
